@@ -1,11 +1,22 @@
 const fs = require('fs');
+const util = require('util');
 
-fs.readFile('./sample-json/testTwo.json', 'utf8', (err, jsonStr) => {
-    if(err){
-        console.log('File read failure: ', err);
-        return;
-    }
+const readFile = util.promisify(fs.readFile);
 
-    let jsonObj = JSON.parse(jsonStr);
-    console.log(jsonObj)
-})
+module.exports = async function readFileAsync(filePath) {
+    return await readFile(filePath, 'utf8').then((data)=>{
+        return JSON.parse(data);
+    });
+}
+
+// async function readFile(filePath) {
+//     fs.readFile(filePath, 'utf8', (err, jsonStr) => {
+//         if (err) {
+//             console.log('File read failure: ', err);
+//             return;
+//         }
+
+//         return await JSON.parse(jsonStr);
+//     })
+// }
+

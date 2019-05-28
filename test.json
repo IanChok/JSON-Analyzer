@@ -1,0 +1,19 @@
+{
+    "status": "SUCCESS",
+    "winners": [{
+        "name": null,
+        "country": "GB",
+        "amountWon": "396.00",
+        "currency": "EUR"
+    }, {
+        "name": "Test2Ailbhe",
+        "country": "MT",
+        "amountWon": "90.95",
+        "currency": "EUR"
+    }, {
+        "name": "omegazhenga",
+        "country": "GB",
+        "amountWon": "4.00",
+        "currency": "GBP"
+    }]
+}
