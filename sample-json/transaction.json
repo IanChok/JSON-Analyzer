@@ -15,5 +15,11 @@
         "country": "GB",
         "amountWon": "4.00",
         "currency": "GBP"
+    }],
+    "losers": [{
+        "name": "noobmaster69",
+        "country": "CA",
+        "amountLoss": "80.25",
+        "currency": "EUR"
     }]
 }
