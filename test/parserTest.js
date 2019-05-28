@@ -53,38 +53,37 @@ describe('Querying Data', () => {
       let reqFirstName = '{and:["first_name"]}';
       let reqFirstNameAndLastName = '{and: ["first_name", "last_name"]}';
       let reqQuizThenSportThenQ1ThenQuestion = '{and: ["quiz", {and: ["sport", {and: ["q1", {and: "question"}]}]}]}';
-      let reqStatusAnd_WinnersThenName_LosersThenName = '{and: ["status", "winners", {and: ["name"]}, "losers", {and: ["name"]}]}'
-
+      let reqStatusAnd_WinnersThenName_LosersThenName = '{and: ["status", "winners", {and: ["name"]}, "losers", {and: ["name"]}]}';
       
-      it('reqNonExist should return null because "non_exist" field does not exist from transactionData', ()=> {
+      it('should return null because "non_exist" field does not exist from transactionData', ()=> {
         expect(parser(reqNonExist, transactionData)).to.be.null;
       })
 
-      it('reqStatus should return "status" field  from transactionData', () => {
+      it('should return "status" field  from transactionData', () => {
         expect(parser(reqStatus, transactionData)).to.eql([{
           status: "SUCCESS"
         }]);
       })
 
-      it('reqStatusAndLosers should return "status" and "losers" field from transactionData', () => {
+      it('should return "status" and "losers" field from transactionData', () => {
         expect(parser(reqStatusAndLosers, transactionData)).to.eql([{
           status: "SUCCESS",
           losers: [{
             "name": "noobmaster",
             "country": "CA",
             "amountLoss": "80.25",
-            "currency": "EUR"
+            "currency": "CAD"
           }]
         }])
       })
 
-      it('reqFirstName should return all "first_name" fields of each object in the array from peopleData', () => {
+      it('should return all "first_name" fields of each object in the array from peopleData', () => {
         expect(parser(reqFirstName, peopleData)).to.eql([{
           first_name: ['Jeanette', 'Giavani', 'Noell', 'Willard']
         }])
       })
 
-      it('reqFirstName and LastName should return all "first_name" and "last_name" fields of each object in the array from peopleData', () => {
+      it('should return all "first_name" and "last_name" fields of each object in the array from peopleData', () => {
         expect(parser(reqFirstNameAndLastName, peopleData)).to.eql([
           { first_name: "Jeanette", last_name: "Penddreth" },
           { first_name: "Giavani", last_name: "Frediani" },
@@ -93,7 +92,7 @@ describe('Querying Data', () => {
         ])
       })
       
-      it('reqQuizThenSportThenQ1ThenQuestion should return nested properties: Quiz -> Sport -> Q1 -> Question from quizData', () => {
+      it('should return nested properties: Quiz -> Sport -> Q1 -> Question from quizData', () => {
       expect(parser(reqQuizThenSportThenQ1ThenQuestion, quizData)).to.eql([{
         quiz: [{
           sport: [{
@@ -105,7 +104,7 @@ describe('Querying Data', () => {
       }])
       })
 
-      it('reqStatusAnd_WinnersThenName_LosersThenName should return multiple fields with their associated nested contents from transactionData', () => {
+      it('should return multiple fields with their associated nested contents from transactionData', () => {
         expect(parser(reqStatusAnd_WinnersThenName_LosersThenName, transactionData)).to.eql([{
           status: "SUCCESS",
           winners: [{name: ["null", "Test2Ailbhe", "omegazhenga", "noobmaster"]}],
@@ -120,20 +119,140 @@ describe('Querying Data', () => {
       let reqNonExistOrStatus = '{or: ["non_exist", "status"]}';
       let reqStatusOrLosers = '{or: ["status", "losers"]}';
 
-      it('reqStatusORLosers should return "status" field from transactionData', () => {
+      it('should return "status" field from transactionData', () => {
         expect(parser(reqStatusOrLosers, transactionData)).to.eql({
           status: "SUCCESS"
         });
       })
 
-      it('reqNonExistOrStatus should return "status" field because "non_exist" field doesn\'t exist from transactionData', ()=> {
+      it('should return "status" field because "non_exist" field doesn\'t exist from transactionData', ()=> {
         expect(parser(reqNonExistOrStatus, transactionData)).to.eql([{
           status: "SUCCESS"
         }])
       })
 
-      it('reqNonExistOrStatus')
+    describe('Querying AND and OR requsts', () => {
+        let reqMathThenQ1AndQ2_OrSportsThenQ1 = '{or: ["maths", {and: ["q1", "q2"]}, "sport", {and: ["q1"]}]} from quizData';
+        it('should return "sport" then "q1" field value', () => {
+          expect(parser(reqMathThenQ1AndQ2_OrSportsThenQ1)).to.eql([{
+            quiz: {
+              sport: {
+                  q1: {
+                      question: "Which one is correct team name in NBA?",
+                      options: [
+                          "New York Bulls",
+                          "Los Angeles Kings",
+                          "Golden State Warriros",
+                          "Huston Rocket"
+                      ],
+                      answer: "Huston Rocket"
+                  }
+              }
+          }
+          }])
+        })
+      })
 
+     
+      })
+
+    describe('Querying EQUAL Requests', () => {      
+      let reqWinnersThenNameEqToTest2Ailbhe = '{and: ["winners", {and: ["name", {equal: ["Test2Ailbhe"]}]}]}'
+      let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{and: ["status", "winners", {and: ["country", {equal: ["GB"]}, "currency", {equal: ["EUR"]}]}]}';
+      let reqWinnerThenCountryEqToGbOrMt = '{and: ["winner", {and: ["country", {equal: [{or: ["GB", "CA"]}]}]}]}';
+
+      it('should return "status" and "winner" fields which has "country" equal to "GB" and "curency" equal to "EUR"', () => {
+        expect(parser(reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur, transactionData)).to.eql([{
+          status: "SUCCESS",
+          winners: [{
+              name: null,
+              country: "GB",
+              amountWon: "396.00",
+              currency: "EUR"
+          }]
+        }])
+      })
+
+      it('should return "winner" field which has "country" fields equal to "GB" or "CA" from transactionData', () => {
+        expect(parser(reqWinnerThenCountryEqToGbOrMt, transactionData)).to.eql([{
+          winners: [{
+            name: "omegazhenga",
+            country: "GB",
+            amountWon: "4.00",
+            currency: "GBP"
+          }, {
+            name: "pwnmaster",
+            country: "CA",
+            amountWon: "80.25",
+            currency: "CAD"
+          }]
+        }])
+      })
+    })
+
+    describe('Querying GREATER and LESS Requests', () => {
+      let reqAmountWonGreaterThan5 = '{and: ["winners", {and: ["amountWon", {greater: ["5.00"]}]}]}';
+      let reqAmountWonLessThan300 = '{and: ["winners", {and: ["amountWon", {less: ["300.00"]}]}]}';
+      let reqAmountWonGreaterThan5LessThan300 = '{and: ["winners", {and: ["amountWon", {greater: ["5.00"]}, {less: ["300.00"]}]}]}';
+
+      it('should return "winner" fields which have "amountWon" fields greater than 5.00 from transactionData', ()=> {
+          expect(parser(reqAmountWonGreaterThan5, transactionData)).to.eql([{
+            winners: [{
+              name: null,
+              country: "GB",
+              amountWon: "396.00",
+              currency: "EUR"
+          }, {
+              name: "Test2Ailbhe",
+              country: "MT",
+              amountWon: "90.95",
+              currency: "EUR"
+          }, {
+              name: "pwnmaster",
+              country: "CA",
+              amountWon: "80.25",
+              currency: "CAD"
+          }]
+          }])
+      })
+
+      it('should return "winner" fields which have "amountWon" fields less than 300.00 from transactionData', ()=> {
+        expect(parser(reqAmountWonLessThan300, transactionData)).to.eql([{
+          winners: [{
+            name: "Test2Ailbhe",
+            country: "MT",
+            amountWon: "90.95",
+            currency: "EUR"
+        }, {
+            name: "omegazhenga",
+            country: "GB",
+            amountWon: "4.00",
+            currency: "GBP"
+        }, {
+            name: "pwnmaster",
+            country: "CA",
+            amountWon: "80.25",
+            currency: "CAD"
+        }]
+        }])
+      })
+
+      
+      it('should return "winner" fields which have "amountWon" fields greater than 5.00 and less than 300.00 from transactionData', ()=> {
+        expect(parser(reqAmountWonGreaterThan5LessThan300, transactionData)).to.eql([{
+          winners: [{
+            name: "Test2Ailbhe",
+            country: "MT",
+            amountWon: "90.95",
+            currency: "EUR"
+        }, {
+            name: "pwnmaster",
+            country: "CA",
+            amountWon: "80.25",
+            currency: "CAD"
+        }]
+        }])
+      })
     })
 
     describe('Querying DEEP requests', ()=> {
@@ -141,7 +260,7 @@ describe('Querying Data', () => {
       let reqQuestionWithParents = '{deep: [{and: ["question"]}], parents: true}';
       let reqQuestionAndAnswer = '{deep: [{and: ["question", "answer"]}]}'
 
-      it('reqQuestion should return all "question" fields, regardless of their nested levels from quizData', () => {
+      it('should return all "question" fields, regardless of their nested levels from quizData', () => {
         expect(parser(reqQuestion, quizData)).to.eql([{
           question: [
             "Which one is correct team name in NBA?",
@@ -150,7 +269,7 @@ describe('Querying Data', () => {
         ])
       })
 
-      it('reqQuestion should return all "question" fields with nested structure intact, regardless of their nested levels from quizData', () => {
+      it('should return all "question" fields with nested structure intact, regardless of their nested levels from quizData', () => {
         expect(parser(reqQuestionWithParents, quizData)).to.eql([{
           quiz: [{
             sport: [{
@@ -170,7 +289,7 @@ describe('Querying Data', () => {
         }])
       })
 
-      it('reqQuestion should return all "question" and "answer" fields, regardless of their nested levels from quizData', () => {
+      it('should return all "question" and "answer" fields, regardless of their nested levels from quizData', () => {
         expect(parser(reqQuestionAndAnswer, quizData)).to.eql([
           { question: "Which one is correct team name in NBA?", answer: "Huston Rocket" },
           { question: "5 + 7 = ?", answer:  "12" },

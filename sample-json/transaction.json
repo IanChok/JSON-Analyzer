@@ -15,11 +15,16 @@
         "country": "GB",
         "amountWon": "4.00",
         "currency": "GBP"
+    }, {
+        "name": "pwnmaster",
+        "country": "CA",
+        "amountWon": "80.25",
+        "currency": "CAD"
     }],
     "losers": [{
         "name": "noobmaster",
         "country": "CA",
         "amountLoss": "80.25",
-        "currency": "EUR"
+        "currency": "CAD"
     }]
 }
