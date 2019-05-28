@@ -161,6 +161,17 @@ describe('Querying Data', () => {
       let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{and: ["status", "winners", {and: ["country", {equal: ["GB"]}, "currency", {equal: ["EUR"]}]}]}';
       let reqWinnerThenCountryEqToGbOrMt = '{and: ["winner", {and: ["country", {equal: [{or: ["GB", "CA"]}]}]}]}';
 
+      it('should return "winner" which name has "Test2Ailbhe" from transacitonData', ()=> {
+        expect(parser(reqWinnersThenNameEqToTest2Ailbhe, transactionData)).to.eql([{
+          winners: [{
+            name: "Test2Ailbhe",
+            country: "MT",
+            amountWon: "90.95",
+            currency: "EUR"
+        }]
+        }])
+      })
+
       it('should return "status" and "winner" fields which has "country" equal to "GB" and "curency" equal to "EUR"', () => {
         expect(parser(reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur, transactionData)).to.eql([{
           status: "SUCCESS",
