@@ -17,7 +17,7 @@ function validateReq(req){
     try{
         JSON.parse(req);
     } catch(err){
-        throw new Error('Req not a valid JSON: ', err);
+        throw new Error('Request not a valid JSON: ', req);
     }
 
     return;

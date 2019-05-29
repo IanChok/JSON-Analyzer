@@ -47,13 +47,13 @@ describe('Querying Data', () => {
 
   describe('Returning Filtered Data', () => {
     describe('Querying AND Requests', () => {
-      let reqNonExist = '{and: ["non_exist"]}';
-      let reqStatus = '{and: ["status"]}';
-      let reqStatusAndLosers = '{and:["status", "losers"]}';
-      let reqFirstName = '{and:["first_name"]}';
-      let reqFirstNameAndLastName = '{and: ["first_name", "last_name"]}';
-      let reqQuizThenSportThenQ1ThenQuestion = '{and: ["quiz", {and: ["sport", {and: ["q1", {and: "question"}]}]}]}';
-      let reqStatusAnd_WinnersThenName_LosersThenName = '{and: ["status", "winners", {and: ["name"]}, "losers", {and: ["name"]}]}';
+      let reqNonExist = '{"and": ["non_exist"]}';
+      let reqStatus = '{"and": ["status"]}';
+      let reqStatusAndLosers = '{"and":["status", "losers"]}';
+      let reqFirstName = '{"and":["first_name"]}';
+      let reqFirstNameAndLastName = '{"and": ["first_name", "last_name"]}';
+      let reqQuizThenSportThenQ1ThenQuestion = '{"and": ["quiz", {"and": ["sport", {"and": ["q1", {"and": "question"}]}]}]}';
+      let reqStatusAnd_WinnersThenName_LosersThenName = '{"and": ["status", "winners", {"and": ["name"]}, "losers", {"and": ["name"]}]}';
       
       it('should return null because "non_exist" field does not exist from transactionData', ()=> {
         expect(parser(reqNonExist, transactionData)).to.be.null;
@@ -116,8 +116,8 @@ describe('Querying Data', () => {
 
 
     describe('Querying OR Requests', () => {
-      let reqNonExistOrStatus = '{or: ["non_exist", "status"]}';
-      let reqStatusOrLosers = '{or: ["status", "losers"]}';
+      let reqNonExistOrStatus = '{"or": ["non_exist", "status"]}';
+      let reqStatusOrLosers = '{"or": ["status", "losers"]}';
 
       it('should return "status" field from transactionData', () => {
         expect(parser(reqStatusOrLosers, transactionData)).to.eql({
@@ -157,9 +157,9 @@ describe('Querying Data', () => {
       })
 
     describe('Querying EQUAL Requests', () => {      
-      let reqWinnersThenNameEqToTest2Ailbhe = '{and: ["winners", {and: ["name", {equal: ["Test2Ailbhe"]}]}]}'
-      let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{and: ["status", "winners", {and: ["country", {equal: ["GB"]}, "currency", {equal: ["EUR"]}]}]}';
-      let reqWinnerThenCountryEqToGbOrMt = '{and: ["winner", {and: ["country", {equal: [{or: ["GB", "CA"]}]}]}]}';
+      let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": ["name", {"equal": ["Test2Ailbhe"]}]}]}'
+      let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", "winners", {"and": ["country", {"equal": ["GB"]}, "currency", {"equal": ["EUR"]}]}]}';
+      let reqWinnerThenCountryEqToGbOrMt = '{"and": ["winner", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
 
       it('should return "winner" which name has "Test2Ailbhe" from transacitonData', ()=> {
         expect(parser(reqWinnersThenNameEqToTest2Ailbhe, transactionData)).to.eql([{
@@ -202,9 +202,9 @@ describe('Querying Data', () => {
     })
 
     describe('Querying GREATER and LESS Requests', () => {
-      let reqAmountWonGreaterThan5 = '{and: ["winners", {and: ["amountWon", {greater: ["5.00"]}]}]}';
-      let reqAmountWonLessThan300 = '{and: ["winners", {and: ["amountWon", {less: ["300.00"]}]}]}';
-      let reqAmountWonGreaterThan5LessThan300 = '{and: ["winners", {and: ["amountWon", {greater: ["5.00"]}, {less: ["300.00"]}]}]}';
+      let reqAmountWonGreaterThan5 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}]}]}';
+      let reqAmountWonLessThan300 = '{"and": ["winners", {"and": ["amountWon", {"less": ["300.00"]}]}]}';
+      let reqAmountWonGreaterThan5LessThan300 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}, {"less": ["300.00"]}]}]}';
 
       it('should return "winner" fields which have "amountWon" fields greater than 5.00 from transactionData', ()=> {
           expect(parser(reqAmountWonGreaterThan5, transactionData)).to.eql([{
@@ -267,9 +267,9 @@ describe('Querying Data', () => {
     })
 
     describe('Querying DEEP requests', ()=> {
-      let reqQuestion = '{deep: [{and: ["question"]}]}'
-      let reqQuestionWithParents = '{deep: [{and: ["question"]}], parents: true}';
-      let reqQuestionAndAnswer = '{deep: [{and: ["question", "answer"]}]}'
+      let reqQuestion = '{"deep": [{"and": ["question"]}]}'
+      let reqQuestionWithParents = '{"deep": [{"and": ["question"]}], "parents": true}';
+      let reqQuestionAndAnswer = '{"deep": [{"and": ["question", "answer"]}]}'
 
       it('should return all "question" fields, regardless of their nested levels from quizData', () => {
         expect(parser(reqQuestion, quizData)).to.eql([{
