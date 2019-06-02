@@ -34,6 +34,12 @@ describe('Querying Data', () => {
 
   })
 
+  describe('Checking wrong inputs to parser.js', ()=> {
+    it('should throw Error for null request', ()=>  {
+      expect(parser).to.throw();
+    })
+  })
+
 
   describe('Checking NOT Undefined Data', () => {
     it('transaction, cake, database, people, and quiz data are NOT undefined', () => {
@@ -47,7 +53,7 @@ describe('Querying Data', () => {
 
   describe('Returning Filtered Data', () => {
     describe('Querying AND Requests', () => {
-      let reqNonExist = '{"and": ["non_exist"]}';
+      let reqNonExist = '{and": ["non_exist"]}';
       let reqStatus = '{"and": ["status"]}';
       let reqStatusAndLosers = '{"and":["status", "losers"]}';
       let reqFirstName = '{"and":["first_name"]}';
@@ -115,7 +121,7 @@ describe('Querying Data', () => {
       })
 
 
-    describe('Querying OR Requests', () => {
+   /*  describe('Querying OR Requests', () => {
       let reqNonExistOrStatus = '{"or": ["non_exist", "status"]}';
       let reqStatusOrLosers = '{"or": ["status", "losers"]}';
 
@@ -154,9 +160,9 @@ describe('Querying Data', () => {
       })
 
      
-      })
+      }) */
 
-    describe('Querying EQUAL Requests', () => {      
+    /* describe('Querying EQUAL Requests', () => {      
       let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": ["name", {"equal": ["Test2Ailbhe"]}]}]}'
       let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", "winners", {"and": ["country", {"equal": ["GB"]}, "currency", {"equal": ["EUR"]}]}]}';
       let reqWinnerThenCountryEqToGbOrMt = '{"and": ["winner", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
@@ -199,9 +205,9 @@ describe('Querying Data', () => {
           }]
         }])
       })
-    })
+    }) */
 
-    describe('Querying GREATER and LESS Requests', () => {
+    /* describe('Querying GREATER and LESS Requests', () => {
       let reqAmountWonGreaterThan5 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}]}]}';
       let reqAmountWonLessThan300 = '{"and": ["winners", {"and": ["amountWon", {"less": ["300.00"]}]}]}';
       let reqAmountWonGreaterThan5LessThan300 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}, {"less": ["300.00"]}]}]}';
@@ -264,9 +270,9 @@ describe('Querying Data', () => {
         }]
         }])
       })
-    })
+    }) */
 
-    describe('Querying DEEP requests', ()=> {
+    /* describe('Querying DEEP requests', ()=> {
       let reqQuestion = '{"deep": [{"and": ["question"]}]}'
       let reqQuestionWithParents = '{"deep": [{"and": ["question"]}], "parents": true}';
       let reqQuestionAndAnswer = '{"deep": [{"and": ["question", "answer"]}]}'
@@ -308,7 +314,7 @@ describe('Querying Data', () => {
         ])
       })
 
-    })
+    }) */
 
   })
 })
