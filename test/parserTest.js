@@ -1,5 +1,5 @@
 const server = require('../server');
-const parser = require('../parser/parser_main');
+const parser = require('../parser_main');
 const expect = require('chai').expect;
 
 let transactionPath = './sample-json/transaction.json';
@@ -58,7 +58,7 @@ describe('Querying Data', () => {
       let reqStatusAndLosers = '{"and":["status", "losers"]}';
       let reqFirstName = '{"and":["first_name"]}';
       let reqFirstNameAndLastName = '{"and": ["first_name", "last_name"]}';
-      let reqQuizThenSportThenQ1ThenQuestion = '{"and": ["quiz", {"and": ["sport", {"and": ["q1", {"and": "question"}]}]}]}';
+      let reqQuizThenSportThenQ1ThenQuestion = '{"and": ["quiz", {"and": ["sport", {"and": ["q1", {"and": ["question"]}]}]}]}';
       let reqStatusAnd_WinnersThenName_LosersThenName = '{"and": ["status", "winners", {"and": ["name"]}, "losers", {"and": ["name"]}]}';
       
       it('should return null because "non_exist" field does not exist from transactionData', ()=> {
@@ -117,10 +117,10 @@ describe('Querying Data', () => {
         expect(parser(reqStatusAnd_WinnersThenName_LosersThenName, transactionData)).to.eql([{
           status: "SUCCESS",
           winners: [
-          {name: "null"},
+          {name: null},
           {name: "Test2Ailbhe"},
           {name: "omegazhenga"},
-          {name: "noobmaster"}
+          {name: "pwnmaster"}
         ],
           losers:[
             {name: "noobmaster"}
