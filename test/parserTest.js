@@ -1,5 +1,5 @@
 const server = require('../server');
-const parser = require('../parser');
+const parser = require('../parser/parser_main');
 const expect = require('chai').expect;
 
 let transactionPath = './sample-json/transaction.json';
@@ -53,7 +53,7 @@ describe('Querying Data', () => {
 
   describe('Returning Filtered Data', () => {
     describe('Querying AND Requests', () => {
-      let reqNonExist = '{and": ["non_exist"]}';
+      let reqNonExist = '{"and": ["non_exist"]}';
       let reqStatus = '{"and": ["status"]}';
       let reqStatusAndLosers = '{"and":["status", "losers"]}';
       let reqFirstName = '{"and":["first_name"]}';
@@ -62,7 +62,7 @@ describe('Querying Data', () => {
       let reqStatusAnd_WinnersThenName_LosersThenName = '{"and": ["status", "winners", {"and": ["name"]}, "losers", {"and": ["name"]}]}';
       
       it('should return null because "non_exist" field does not exist from transactionData', ()=> {
-        expect(parser(reqNonExist, transactionData)).to.be.null;
+        expect(parser(reqNonExist, transactionData)).to.eql([undefined]);
       })
 
       it('should return "status" field  from transactionData', () => {
@@ -75,18 +75,21 @@ describe('Querying Data', () => {
         expect(parser(reqStatusAndLosers, transactionData)).to.eql([{
           status: "SUCCESS",
           losers: [{
-            "name": "noobmaster",
-            "country": "CA",
-            "amountLoss": "80.25",
-            "currency": "CAD"
+            name: "noobmaster",
+            country: "CA",
+            amountLoss: "80.25",
+            currency: "CAD"
           }]
         }])
       })
 
       it('should return all "first_name" fields of each object in the array from peopleData', () => {
-        expect(parser(reqFirstName, peopleData)).to.eql([{
-          first_name: ['Jeanette', 'Giavani', 'Noell', 'Willard']
-        }])
+        expect(parser(reqFirstName, peopleData)).to.eql([
+        {first_name: "Jeanette"},
+        {first_name: "Giavani"},
+        {first_name: "Noell"},
+        {first_name: "Willard"}
+      ])
       })
 
       it('should return all "first_name" and "last_name" fields of each object in the array from peopleData', () => {
@@ -113,8 +116,15 @@ describe('Querying Data', () => {
       it('should return multiple fields with their associated nested contents from transactionData', () => {
         expect(parser(reqStatusAnd_WinnersThenName_LosersThenName, transactionData)).to.eql([{
           status: "SUCCESS",
-          winners: [{name: ["null", "Test2Ailbhe", "omegazhenga", "noobmaster"]}],
-          losers:[{name: ["noobmaster"]}]
+          winners: [
+          {name: "null"},
+          {name: "Test2Ailbhe"},
+          {name: "omegazhenga"},
+          {name: "noobmaster"}
+        ],
+          losers:[
+            {name: "noobmaster"}
+          ]
         }])
       })
 
