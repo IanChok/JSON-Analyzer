@@ -59,10 +59,12 @@ describe('Querying Data', () => {
       let reqFirstName = '{"and":["first_name"]}';
       let reqFirstNameAndLastName = '{"and": ["first_name", "last_name"]}';
       let reqQuizThenSportThenQ1ThenQuestion = '{"and": ["quiz", {"and": ["sport", {"and": ["q1", {"and": ["question"]}]}]}]}';
+      let reqQuizThenSportThenQ1ThenNonExist = '{"and": ["quiz", {"and": ["sport", {"and": ["q1", {"and": ["non_exist"]}]}]}]}';
       let reqStatusAnd_WinnersThenName_LosersThenName = '{"and": ["status", "winners", {"and": ["name"]}, "losers", {"and": ["name"]}]}';
       
-      it('should return null because "non_exist" field does not exist from transactionData', ()=> {
+      it('should return [undefined] because "non_exist" field does not exist from transactionData', ()=> {
         expect(parser(reqNonExist, transactionData)).to.eql([undefined]);
+        expect(parser(reqQuizThenSportThenQ1ThenNonExist, quizData)).to.eql([undefined]);
       })
 
       it('should return "status" field  from transactionData', () => {

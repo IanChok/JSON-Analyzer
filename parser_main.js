@@ -65,31 +65,27 @@ function processReq (req, data) {
 
 function and(query, data) {
     let returnObj = {};
-    //one level
+
     for (let i = 0; i < query.length; i++) {
-        let req = query[i]; //"field" or {and/or: []}
+        let req = query[i]; //"field"
         let reqNext = query[i+1];
 
-        if (typeof req === 'string') {
-            if (data[req] === undefined) {
-                return undefined;
-            }
+        if (data[req] === undefined) {
+            return undefined;
         }
-
-        let temp;
 
         if(reqNext !== undefined && _.isPlainObject(reqNext)){
-            temp = processQuery(reqNext, data[req]);
-            if(temp === undefined){
+            let temp = processQuery(reqNext, data[req]);
+            if(temp[0] === undefined){
                 return undefined;
             }
+            returnObj[req] = temp;
             i += 1;
         } else {
-            temp = data[req];
+            returnObj[req] = data[req];
         }
-        returnObj[req] = temp;
-
     }
+
     return returnObj;
 }
 
