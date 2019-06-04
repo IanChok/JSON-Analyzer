@@ -26,7 +26,7 @@ function parseReq(req){
     }
 }
 
- function processQuery(req, data) {
+ function processQuery(req, data, req2) {
     if (_.isPlainObject(data)) {
         return [processDataPlainObj(req, data)];
     } else {
@@ -89,3 +89,31 @@ function and(query, data) {
     return returnObj;
 }
 
+//TODO
+function or(query, data){
+    let returnObj = {};
+
+    for(let i = 0; i < query.length; i++){
+        let req = query[i];
+        let reqNext = query[i+1];
+
+        if(reqNext !== undefined && _.isPlainObject(reqNext)){
+           let temp = processQuery(reqNext, data[req]);
+           if(temp[0] === undefined){
+               continue;
+           } 
+        } else {
+            if(data[req]){
+            returnObj[req] = temp;
+            break;
+        }
+        }
+
+        
+    }
+
+    if (_.size(returnObj) === 0){
+        return undefined;
+    }
+    return returnObj;
+}
