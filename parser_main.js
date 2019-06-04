@@ -4,16 +4,18 @@ const _ = require('lodash');
 const util = require('util');
 
 module.exports = function parserFn(req, data) {
+    console.log('Parser reached');
     checkNullInputs(req, data);
     req = parseReq(req);
     return processQuery(req, data);
 }
 
 function checkNullInputs(req, data){
-     if(req === null) {
+     if(req === undefined) {
         throw new Error('Null being passed as request');
     }
-    if(data === null){
+    if(data === undefined){
+        console.log('data is null');
         throw new Error('No dataset is provided for request ', req);
     }
 }
@@ -67,7 +69,7 @@ function and(query, data) {
     let returnObj = {};
 
     for (let i = 0; i < query.length; i++) {
-        let req = query[i]; //"field"
+        let req = query[i]; 
         let reqNext = query[i+1];
 
         if (data[req] === undefined) {
@@ -82,37 +84,48 @@ function and(query, data) {
             returnObj[req] = temp;
             i += 1;
         } else {
-            returnObj[req] = data[req];
+            let value = data[req];
+            if (value !== undefined) {
+                if(_.isPlainObject(value)){
+                    value = [value];
+                }
+            }
+            returnObj[req] = value;
         }
     }
-
     return returnObj;
 }
 
 //TODO
-function or(query, data){
+function or(query, data) {
     let returnObj = {};
 
-    for(let i = 0; i < query.length; i++){
+    for (let i = 0; i < query.length; i++) {
         let req = query[i];
-        let reqNext = query[i+1];
+        let reqNext = query[i + 1];
 
-        if(reqNext !== undefined && _.isPlainObject(reqNext)){
-           let temp = processQuery(reqNext, data[req]);
-           if(temp[0] === undefined){
-               continue;
-           } 
-        } else {
-            if(data[req]){
+        if (reqNext !== undefined && _.isPlainObject(reqNext)) {
+            let temp = processQuery(reqNext, data[req]);
+            if (temp[0] === undefined) {
+                continue;
+            }
+
             returnObj[req] = temp;
             break;
-        }
-        }
 
-        
+        } else {
+            let value = data[req];
+            if (value !== undefined) {
+                if(_.isPlainObject(value)){
+                    value = [value];
+                }
+                returnObj[req] = value;
+                break;
+            }
+        }
     }
 
-    if (_.size(returnObj) === 0){
+    if (_.size(returnObj) === 0) {
         return undefined;
     }
     return returnObj;
