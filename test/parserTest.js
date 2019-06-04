@@ -1,5 +1,5 @@
 const server = require('../server');
-const parser = require('../parser');
+const parser = require('../parser_main');
 const expect = require('chai').expect;
 
 let transactionPath = './sample-json/transaction.json';
@@ -34,6 +34,12 @@ describe('Querying Data', () => {
 
   })
 
+  describe('Checking wrong inputs to parser.js', ()=> {
+    it('should throw Error for null request', ()=>  {
+      expect(parser).to.throw();
+    })
+  })
+
 
   describe('Checking NOT Undefined Data', () => {
     it('transaction, cake, database, people, and quiz data are NOT undefined', () => {
@@ -52,11 +58,14 @@ describe('Querying Data', () => {
       let reqStatusAndLosers = '{"and":["status", "losers"]}';
       let reqFirstName = '{"and":["first_name"]}';
       let reqFirstNameAndLastName = '{"and": ["first_name", "last_name"]}';
-      let reqQuizThenSportThenQ1ThenQuestion = '{"and": ["quiz", {"and": ["sport", {"and": ["q1", {"and": "question"}]}]}]}';
+      let reqQuizThenSportThenQ1ThenQuestion = '{"and": ["quiz", {"and": ["sport", {"and": ["q1", {"and": ["question"]}]}]}]}';
+      let reqQuizThenSportThenQ1ThenNonExist = '{"and": ["quiz", {"and": ["sport", {"and": ["q1", {"and": ["non_exist"]}]}]}]}';
       let reqStatusAnd_WinnersThenName_LosersThenName = '{"and": ["status", "winners", {"and": ["name"]}, "losers", {"and": ["name"]}]}';
-      
-      it('should return null because "non_exist" field does not exist from transactionData', ()=> {
-        expect(parser(reqNonExist, transactionData)).to.be.null;
+      let reqIdAnd_battersThenBatter = '{"and": ["id", "batters", {"and": ["batter"]}]}';
+
+      it('should return [undefined] because "non_exist" field does not exist from transactionData', ()=> {
+        expect(parser(reqNonExist, transactionData)).to.eql([undefined]);
+        expect(parser(reqQuizThenSportThenQ1ThenNonExist, quizData)).to.eql([undefined]);
       })
 
       it('should return "status" field  from transactionData', () => {
@@ -69,18 +78,21 @@ describe('Querying Data', () => {
         expect(parser(reqStatusAndLosers, transactionData)).to.eql([{
           status: "SUCCESS",
           losers: [{
-            "name": "noobmaster",
-            "country": "CA",
-            "amountLoss": "80.25",
-            "currency": "CAD"
+            name: "noobmaster",
+            country: "CA",
+            amountLoss: "80.25",
+            currency: "CAD"
           }]
         }])
       })
 
       it('should return all "first_name" fields of each object in the array from peopleData', () => {
-        expect(parser(reqFirstName, peopleData)).to.eql([{
-          first_name: ['Jeanette', 'Giavani', 'Noell', 'Willard']
-        }])
+        expect(parser(reqFirstName, peopleData)).to.eql([
+        {first_name: "Jeanette"},
+        {first_name: "Giavani"},
+        {first_name: "Noell"},
+        {first_name: "Willard"}
+      ])
       })
 
       it('should return all "first_name" and "last_name" fields of each object in the array from peopleData', () => {
@@ -107,11 +119,65 @@ describe('Querying Data', () => {
       it('should return multiple fields with their associated nested contents from transactionData', () => {
         expect(parser(reqStatusAnd_WinnersThenName_LosersThenName, transactionData)).to.eql([{
           status: "SUCCESS",
-          winners: [{name: ["null", "Test2Ailbhe", "omegazhenga", "noobmaster"]}],
-          losers:[{name: ["noobmaster"]}]
+          winners: [
+          {name: null},
+          {name: "Test2Ailbhe"},
+          {name: "omegazhenga"},
+          {name: "pwnmaster"}
+        ],
+          losers:[
+            {name: "noobmaster"}
+          ]
         }])
       })
-
+      it('should return multiple fields with their associted nested contents from cakeData', () => {
+      expect(parser(reqIdAnd_battersThenBatter, cakeData)).to.eql([{
+          id: "0001",
+          batters: [{
+            batter: [{
+                id: "1001",
+                type: "Regular"
+              },
+              {
+                id: "1002",
+                type: "Chocolate"
+              },
+              {
+                id: "1003",
+                type: "Blueberry"
+              },
+              {
+                id: "1004",
+                type: "Devil's Food"
+              }
+            ]
+          }]
+        },
+        {
+          id: "0002",
+          batters: [{
+            batter: [{
+              id: "1001",
+              type: "Regular"
+            }]
+          }]
+        },
+        {
+          id: "0003",
+          batters: [{
+            batter: [{
+                id: "1001",
+                type: "Regular"
+              },
+              {
+                id: "1002",
+                type: "Chocolate"
+              }
+            ]
+          }]
+        }
+      ])
+      })
       })
 
 
@@ -120,9 +186,9 @@ describe('Querying Data', () => {
       let reqStatusOrLosers = '{"or": ["status", "losers"]}';
 
       it('should return "status" field from transactionData', () => {
-        expect(parser(reqStatusOrLosers, transactionData)).to.eql({
+        expect(parser(reqStatusOrLosers, transactionData)).to.eql([{
           status: "SUCCESS"
-        });
+        }]);
       })
 
       it('should return "status" field because "non_exist" field doesn\'t exist from transactionData', ()=> {
@@ -131,7 +197,9 @@ describe('Querying Data', () => {
         }])
       })
 
-    describe('Querying AND and OR requsts', () => {
+      })
+
+  describe('Querying AND and OR requsts', () => {
         let reqMathThenQ1AndQ2_OrSportsThenQ1 = '{or: ["maths", {and: ["q1", "q2"]}, "sport", {and: ["q1"]}]} from quizData';
         it('should return "sport" then "q1" field value', () => {
           expect(parser(reqMathThenQ1AndQ2_OrSportsThenQ1)).to.eql([{
@@ -153,10 +221,7 @@ describe('Querying Data', () => {
         })
       })
 
-     
-      })
-
-    describe('Querying EQUAL Requests', () => {      
+    /* describe('Querying EQUAL Requests', () => {      
       let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": ["name", {"equal": ["Test2Ailbhe"]}]}]}'
       let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", "winners", {"and": ["country", {"equal": ["GB"]}, "currency", {"equal": ["EUR"]}]}]}';
       let reqWinnerThenCountryEqToGbOrMt = '{"and": ["winner", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
@@ -199,9 +264,9 @@ describe('Querying Data', () => {
           }]
         }])
       })
-    })
+    }) */
 
-    describe('Querying GREATER and LESS Requests', () => {
+    /* describe('Querying GREATER and LESS Requests', () => {
       let reqAmountWonGreaterThan5 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}]}]}';
       let reqAmountWonLessThan300 = '{"and": ["winners", {"and": ["amountWon", {"less": ["300.00"]}]}]}';
       let reqAmountWonGreaterThan5LessThan300 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}, {"less": ["300.00"]}]}]}';
@@ -264,9 +329,9 @@ describe('Querying Data', () => {
         }]
         }])
       })
-    })
+    }) */
 
-    describe('Querying DEEP requests', ()=> {
+    /* describe('Querying DEEP requests', ()=> {
       let reqQuestion = '{"deep": [{"and": ["question"]}]}'
       let reqQuestionWithParents = '{"deep": [{"and": ["question"]}], "parents": true}';
       let reqQuestionAndAnswer = '{"deep": [{"and": ["question", "answer"]}]}'
@@ -308,7 +373,7 @@ describe('Querying Data', () => {
         ])
       })
 
-    })
+    }) */
 
   })
 })
