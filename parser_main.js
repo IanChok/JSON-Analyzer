@@ -27,13 +27,7 @@ function parseReq(req){
     }
 }
 
- function processQuery(req, data, cond, field, prevData) {
-    for(let i in req){
-        if(i === 'equal'){
-            data = prevData;
-        }
-    }
-    
+ function processQuery(req, data, cond, field) {
     if (_.isPlainObject(data)) {
         return [processDataPlainObj(req, data, cond, field)];
     } else {
@@ -48,9 +42,13 @@ function processDataPlainObj(req, data, cond, field) {
 function processDataArray(req, data, cond, field) {
     let wrapper = [];
     _.forEach(data, (obj) => {
-        wrapper.push(processReq(req, obj, cond, field));
+        let temp = processReq(req, obj, cond, field);
+        if(temp !== undefined){
+            wrapper.push(temp);
+        }
     })
 
+    console.log('Wrapper: ', util.inspect( wrapper, false, null, true))
     return wrapper;
 }
 
@@ -78,7 +76,16 @@ function and(query, data) {
         }
 
         if(reqNext !== undefined && _.isPlainObject(reqNext)){
-            let temp = processQuery(reqNext, data[field], "and", field, data);
+
+            if(isEqual(reqNext)){
+               let temp = processQuery(reqNext, data, "and", field);
+
+               if(temp[0] !== undefined){
+                   return data;
+               }
+            }
+
+            let temp = processQuery(reqNext, data[field], "and", field);
             console.log('AND temp: ', util.inspect(temp, false, null, true));
             if(temp[0] === undefined){
                 return undefined;
@@ -95,7 +102,23 @@ function and(query, data) {
             returnObj[field] = value;
         }
     }
+
+    console.log('AND.returnObj: ', returnObj);
     return returnObj;
+}
+
+function andVal(req, data){
+
+}
+
+function isEqual(obj){
+    for(let i in obj){
+        if (i === 'equal'){
+            return true;
+        }
+    }
+
+    return false;
 }
 
 //TODO
@@ -107,7 +130,7 @@ function or(query, data) {
         let reqNext = query[i + 1];
 
         if (reqNext !== undefined && _.isPlainObject(reqNext)) {
-            let temp = processQuery(reqNext, data[field], "or", field, data);
+            let temp = processQuery(reqNext, data[field], data,"or", field);
             if (temp[0] === undefined) {
                 continue;
             }
@@ -141,7 +164,8 @@ function equal(query, data, cond, field){
         if(cond === "and"){
             console.log('cond = and');
             if(data[field] !== val){
-                console.log('data[field] !== val, ', data[field], ' ', val)
+                console.log('data[field] !== val, ')
+                console.log(`data[${field}] (= ${data[field]}) !== ${val}`)
                 return undefined;
             }
         } else {
