@@ -253,7 +253,7 @@ describe('Querying Data', () => {
       })
     })
 
-    /* describe('Querying EQUAL Requests', () => {      
+    describe('Querying EQUAL Requests', () => {      
       let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": ["name", {"equal": ["Test2Ailbhe"]}]}]}'
       let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", "winners", {"and": ["country", {"equal": ["GB"]}, "currency", {"equal": ["EUR"]}]}]}';
       let reqWinnerThenCountryEqToGbOrMt = '{"and": ["winner", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
@@ -296,12 +296,12 @@ describe('Querying Data', () => {
           }]
         }])
       })
-    }) */
+    })
 
     /* describe('Querying GREATER and LESS Requests', () => {
       let reqAmountWonGreaterThan5 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}]}]}';
       let reqAmountWonLessThan300 = '{"and": ["winners", {"and": ["amountWon", {"less": ["300.00"]}]}]}';
-      let reqAmountWonGreaterThan5LessThan300 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}, {"less": ["300.00"]}]}]}';
+      let reqAmountWonGreaterThan5LessThan300 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"], "less": ["300.00"]}]}]}';
 
       it('should return "winner" fields which have "amountWon" fields greater than 5.00 from transactionData', ()=> {
           expect(parser(reqAmountWonGreaterThan5, transactionData)).to.eql([{
