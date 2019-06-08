@@ -254,9 +254,15 @@ describe('Querying Data', () => {
     })
 
     describe('Querying EQUAL Requests', () => {      
+      let reqStatusEqToLosers = '{"and": ["status", {"equal": ["FAIL"]}]}'
       let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": ["name", {"equal": ["Test2Ailbhe"]}]}]}'
       let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", "winners", {"and": ["country", {"equal": ["GB"]}, "currency", {"equal": ["EUR"]}]}]}';
-      let reqWinnerThenCountryEqToGbOrMt = '{"and": ["winner", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
+      let reqWinnerThenCountryEqToGbOrCA = '{"and": ["winner", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
+
+
+      it('should return "[udefined]" with non-existing value from transactionData', () => {
+        expect(parser(reqStatusEqToLosers, transactionData)).to.eql([undefined]);
+      })
 
       it('should return "winner" which name has "Test2Ailbhe" from transacitonData', ()=> {
         expect(parser(reqWinnersThenNameEqToTest2Ailbhe, transactionData)).to.eql([{
@@ -282,7 +288,7 @@ describe('Querying Data', () => {
       })
 
       it('should return "winner" field which has "country" fields equal to "GB" or "CA" from transactionData', () => {
-        expect(parser(reqWinnerThenCountryEqToGbOrMt, transactionData)).to.eql([{
+        expect(parser(reqWinnerThenCountryEqToGbOrCA, transactionData)).to.eql([{
           winners: [{
             name: "omegazhenga",
             country: "GB",
