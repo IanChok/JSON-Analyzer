@@ -41,7 +41,9 @@ function processDataPlainObj(req, data, cond, field) {
 
 function processDataArray(req, data, cond, field) {
     let wrapper = [];
+    let i = -1;
     _.forEach(data, (obj) => {
+        console.log('process #: ', ++i);
         let temp = processReq(req, obj, cond, field);
         if(temp !== undefined){
             wrapper.push(temp);
@@ -66,60 +68,81 @@ function processReq (req, data, cond, field) {
 
 function and(query, data) {
     let returnObj = {};
+    let andObj = null;
 
     for (let i = 0; i < query.length; i++) {
-        let field = query[i]; 
-        let reqNext = query[i+1];
+        let field = query[i];
+        let fieldNext = query[i + 1];
 
-        if (data[field] === undefined) {
+        if (isUndefined(data[field])) {
             return undefined;
         }
 
-        if(reqNext !== undefined && _.isPlainObject(reqNext)){
-
-            if(isEqual(reqNext)){
-               let temp = processQuery(reqNext, data, "and", field);
-
-               if(temp[0] !== undefined){
-                   return data;
-               }
-            }
-
-            let temp = processQuery(reqNext, data[field], "and", field);
-            console.log('AND temp: ', util.inspect(temp, false, null, true));
-            if(temp[0] === undefined){
-                return undefined;
-            }
-            returnObj[field] = temp;
-            i += 1;
-        } else {
-            let value = data[field];
-            if (value !== undefined) {
-                if(_.isPlainObject(value)){
-                    value = [value];
+        if (isLogicFn(fieldNext)) {
+            if (isLogicEqualFn(fieldNext)) {
+                if(dataHasValueFromField(fieldNext, data, "and", field)){
+                    andObj = data;
+                    i += 1;
+                } else {
+                    return undefined;
                 }
+                
+            } else {
+                let temp = recurseWithNextLogicFn(fieldNext, data[field], "and", field);
+                if(isUndefined(temp)){
+                    return undefined;
+                }
+                returnObj[field] = temp
+                i += 1; 
             }
-            returnObj[field] = value;
+
+        } else {
+            returnObj[field] = getFieldValue(data[field]);
         }
     }
 
-    console.log('AND.returnObj: ', returnObj);
+    if(andObj !== null){
+        return andObj;
+    }
+
     return returnObj;
 }
 
-function andVal(req, data){
-
-}
-
-function isEqual(obj){
-    for(let i in obj){
-        if (i === 'equal'){
-            return true;
-        }
+function isUndefined(obj){
+    if(obj === undefined){
+        return true;
     }
-
     return false;
 }
+
+function isLogicFn(input){
+    return input !== undefined && _.isPlainObject(input)
+}
+
+function recurseWithNextLogicFn(reqNext, data, cond, field) {
+    if(cond === 'and'){
+        return recurse_AndFn(reqNext, data, field);
+    }
+}
+
+function recurse_AndFn(reqNext, data, field){
+    let temp = processQuery(reqNext, data, "and", field);
+    if (temp[0] === undefined) {
+        return undefined;
+    }
+    return temp;
+}
+
+function getFieldValue(value){
+    if (value !== undefined) {
+        if (_.isPlainObject(value)) {
+            value = [value];
+        }
+    }
+    return value;
+}
+
+
 
 //TODO
 function or(query, data) {
@@ -156,25 +179,47 @@ function or(query, data) {
     return returnObj;
 }
 
+function isLogicEqualFn(obj){
+    for(let i in obj){
+        if (i === 'equal'){
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function dataHasValueFromField(reqNext, data, cond, field){
+    let temp = processQuery(reqNext, data, cond, field);
+
+    if(temp[0] === undefined){
+        return undefined;
+    }
+
+    return true;
+}
+
+
 function equal(query, data, cond, field){
-    console.log('equal reached. data = ', util.inspect(data, false, null, true));
+    // console.log('equal reached. data = ', util.inspect(data, false, null, true));
+    // console.log('query: ', query);
     for(let i = 0; i < query.length; i++){
         let val = query[i];
-        console.log('val: ', val, '. field: ', field);  
+        // console.log('val: ', val, '. field: ', field);  
         if(cond === "and"){
-            console.log('cond = and');
+            // console.log('cond = and');
             if(data[field] !== val){
-                console.log('data[field] !== val, ')
-                console.log(`data[${field}] (= ${data[field]}) !== ${val}`)
+                // console.log('data[field] !== val, ')
+                // console.log(`data[${field}] (= ${data[field]}) !== ${val}`)
                 return undefined;
             }
         } else {
             if(data[field] === val){
-                console.log('dataField === val');
+                // console.log('dataField === val');
                 return data;
             }
         }
     }
-    console.log('returning data!');
+    // console.log('returning data!');
     return data;
 }
