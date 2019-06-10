@@ -257,7 +257,7 @@ describe('Querying Data', () => {
       let reqStatusEqToLosers = '{"and": ["status", {"equal": ["FAIL"]}]}'
       let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": ["name", {"equal": ["Test2Ailbhe"]}]}]}'
       let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", "winners", {"and": ["country", {"equal": ["GB"]}, "currency", {"equal": ["EUR"]}]}]}';
-      let reqWinnerThenCountryEqToGbOrCA = '{"and": ["winner", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
+      let reqWinnerThenCountryEqToGbOrCA = '{"and": ["winners", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
 
 
       it('should return "[udefined]" with non-existing value from transactionData', () => {
@@ -290,6 +290,11 @@ describe('Querying Data', () => {
       it('should return "winner" field which has "country" fields equal to "GB" or "CA" from transactionData', () => {
         expect(parser(reqWinnerThenCountryEqToGbOrCA, transactionData)).to.eql([{
           winners: [{
+            name: null,
+            country: "GB",
+            amountWon: "396.00",
+            currency: "EUR"
+        }, {
             name: "omegazhenga",
             country: "GB",
             amountWon: "4.00",
