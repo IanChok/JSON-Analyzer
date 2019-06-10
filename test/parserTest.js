@@ -91,7 +91,8 @@ describe('Querying Data', () => {
           { first_name: "Jeanette" },
           { first_name: "Giavani" },
           { first_name: "Noell" },
-          { first_name: "Willard" }
+          { first_name: "Willard" },
+          { first_name: "Mooka" }
         ])
       })
 
@@ -100,7 +101,8 @@ describe('Querying Data', () => {
           { first_name: "Jeanette", last_name: "Penddreth" },
           { first_name: "Giavani", last_name: "Frediani" },
           { first_name: "Noell", last_name: "Bea" },
-          { first_name: "Willard", last_name: "Valek" }
+          { first_name: "Willard", last_name: "Valek" },
+          { first_name: "Mooka", last_name: "Zinga"}
         ])
       })
 
