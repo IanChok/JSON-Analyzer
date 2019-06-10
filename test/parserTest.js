@@ -258,7 +258,7 @@ describe('Querying Data', () => {
       let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": ["name", {"equal": ["Test2Ailbhe"]}]}]}'
       let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", "winners", {"and": ["country", {"equal": ["GB"]}, "currency", {"equal": ["EUR"]}]}]}';
       let reqWinnerThenCountryEqToGbOrCA = '{"and": ["winner", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
-
+      let reqGenderEqToMaleOrFemale = '{"and": ["gender", {"equal": [""]}]}'
 
       it('should return "[udefined]" with non-existing value from transactionData', () => {
         expect(parser(reqStatusEqToLosers, transactionData)).to.eql([undefined]);
@@ -302,6 +302,9 @@ describe('Querying Data', () => {
           }]
         }])
       })
+
+
+
     })
 
     /* describe('Querying GREATER and LESS Requests', () => {
