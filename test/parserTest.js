@@ -257,9 +257,12 @@ describe('Querying Data', () => {
 
     describe('Querying EQUAL Requests', () => {      
       let reqStatusEqToLosers = '{"and": ["status", {"equal": ["FAIL"]}]}'
+      let reqFirstNameEqToNoellAndLastNameEqToBea = '{"and": ["first_name", {"equal": ["Noell"]}, "last_name", {"equal": ["Bea"]}]}'
       let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": ["name", {"equal": ["Test2Ailbhe"]}]}]}'
       let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", "winners", {"and": ["country", {"equal": ["GB"]}, "currency", {"equal": ["EUR"]}]}]}';
       let reqWinnerThenCountryEqToGbOrCA = '{"and": ["winners", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
+      let reqFirstNameEqToWillardOrLastNameEqToNonExist = '{"or": ["first_name", {"equal": ["Willard"]}, "last_name", {"equal": ["non_exist"]}]}'
+      let reqFirstNameEqToNonExistOrLastNameEqToBea = '{"or": ["first_name", {"equal": ["non_exist"]}, "last_name", {"equal": ["Bea"]}]}'
 
       it('should return "[udefined]" with non-existing value from transactionData', () => {
         expect(parser(reqStatusEqToLosers, transactionData)).to.eql([undefined]);
@@ -274,6 +277,19 @@ describe('Querying Data', () => {
             currency: "EUR"
         }]
         }])
+      })
+
+      it('should return "first_name" equal to "Noelle" and "last_name" equal to "Bea"', () => {
+        expect(parser(reqFirstNameEqToNoellAndLastNameEqToBea, peopleData)).to.eql([
+          {
+            id: 3,
+            first_name: "Noell",
+            last_name: "Bea",
+            email: "nbea2@imageshack.us",
+            gender: "Female",
+            ip_address: "180.66.162.255"
+          }
+        ])
       })
 
       it('should return "status" and "winner" fields which has "country" equal to "GB" and "curency" equal to "EUR"', () => {
@@ -307,6 +323,32 @@ describe('Querying Data', () => {
             currency: "CAD"
           }]
         }])
+      })
+
+      it('should return "first_name" equal to "Willard" from peopleData', () => {
+        expect(parser(reqFirstNameEqToWillardOrLastNameEqToNonExist, peopleData)).to.eql([
+          {
+            id: 4,
+            first_name: "Willard",
+            last_name: "Valek",
+            email: "wvalek3@vk.com",
+            gender: "Male",
+            ip_address: "67.76.188.26"
+          }
+        ])
+      })
+
+      it('should return "last_name" equal to "Bea" from peopleData', () => {
+        expect(parser(reqFirstNameEqToNonExistOrLastNameEqToBea, peopleData)).to.eql([
+          {
+            id: 3,
+            first_name: "Noell",
+            last_name: "Bea",
+            email: "nbea2@imageshack.us",
+            gender: "Female",
+            ip_address: "180.66.162.255"
+          }
+        ])
       })
 
 
