@@ -55,16 +55,12 @@ function processDataArray(req, data, cond, field) {
 }
 
 function processReq(req, data, cond, field) {
-    console.log('processing query => req: ', req)
     for (let i in req) {
         if (i === "and") {
-            console.log('searching in and')
             return and(req[i], data);
         } else if (i === "or") {
-            console.log('searching in or')
             return or(req[i], data);
         } else if (i === "equal") {
-            console.log('searching in equal')
             return equal(req[i], data, cond, field);
         }
     }
@@ -123,21 +119,18 @@ function dataHasValueFromField(reqNext, data, cond, field) {
 
 function dataMatchesOrQuery(query, field, data) {
     let matches = false;
-    console.log('dataMatchesOrQuery? query: ', query, ', field: ', field, '. Data: ', data)
-   _.forEach(query, (val) => {
-       if(data[field] === val){
-           console.log(`data[${field}] (${data[field]})=== ${val}`)
-           matches = true;
-           return;
-       }
-   })
+    _.forEach(query, (val) => {
+        if (data[field] === val) {
+            matches = true;
+            return;
+        }
+    })
 
-   console.log('returning matches: ', matches);
 
-   return matches;
+    return matches;
 }
 
-function lookingForNestingContents(input){
+function lookingForNestingContents(input) {
     return input !== undefined && _.isPlainObject(input)
 }
 
@@ -187,7 +180,6 @@ function and(query, data) {
 
 function or(query, data) {
     let returnObj = {};
-    console.log('orFn => query: ', query, '. Data: ', util.inspect(data, false, null, true));
 
     for (let i = 0; i < query.length; i++) {
         let field = query[i];
@@ -195,8 +187,7 @@ function or(query, data) {
 
         if (lookingForNestingContents(fieldNext)) {
             if (lookingForSpecificFieldValue(fieldNext)) {
-                if(dataHasValueFromField(fieldNext, data, "or", field)){
-                    console.log('data HAS value from Field! fieldNext: ', fieldNext, '. field: ', field,'. Data: ', util.inspect(data, false, null, true))
+                if (dataHasValueFromField(fieldNext, data, "or", field)) {
                     returnObj = data;
                     break;
                 }
@@ -225,7 +216,6 @@ function or(query, data) {
         return undefined;
     }
 
-    console.log('returningObj: ', util.inspect(returnObj, false, null, true));
     return returnObj;
 }
 
@@ -233,22 +223,18 @@ function or(query, data) {
 
 
 function equal(query, data, cond, field) {
-    let returnedData;
     let val = query[0];
-    console.log('equal => val: ', val, '. cond: ', cond)
     if (isLogicOrFn(val)) {
         let orQuery = getLogicOrQuery(val);
         if (!dataMatchesOrQuery(orQuery, field, data)) {
             return undefined;
         } else {
-            console.log('data matched OR Query!')
             return data;
         }
     } else {
-
-        if(cond === "and"){
+        if (cond === "and") {
             return equalAndHelper(query, data, field);
-        } else if(cond === "or"){
+        } else if (cond === "or") {
             return equalOrHelper(query, data, field);
         } else {
             if (data[field] === val) {
@@ -276,8 +262,8 @@ function getLogicOrQuery(obj) {
     }
 }
 
-function equalAndHelper(query, data, field){
-    for(let i = 0; i < query.length; i++){
+function equalAndHelper(query, data, field) {
+    for (let i = 0; i < query.length; i++) {
         const val = query[i];
         if (data[field] !== val) {
             return undefined;
@@ -286,14 +272,13 @@ function equalAndHelper(query, data, field){
     return data;
 }
 
-function equalOrHelper(query, data, field){
-    for(let i = 0; i < query.length; i++){
+function equalOrHelper(query, data, field) {
+    for (let i = 0; i < query.length; i++) {
         const val = query[i];
-        if(data[field] === val){
+        if (data[field] === val) {
             return data;
         }
     }
-    
+
     return undefined;
 }
-
