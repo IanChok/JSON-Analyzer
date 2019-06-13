@@ -355,7 +355,14 @@ describe('Querying Data', () => {
 
     })
 
-    /* describe('Querying GREATER and LESS Requests', () => {
+   describe('Querying GREATER and LESS Requests', () => {
+      let reqIdGreaterThan2 = '{"and": ["id", {"greater": ["2"]}]}';
+      let reqIdLessThan4 = '{"and": ["id", {"less": ["4"]}]}';
+      let reqIdGreaterThan2LessThan4 = '{"and":["id", {"greater": ["2"], "less": ["4"]}]}';
+      let reqIdGreaterThan2Lessthan3 = '{"and":["id", {"greater": ["2"], "less": ["3"]}]}';
+      let reqIdGreaterThan5OrLessThan3= '{"or":["id", {"greater": ["5"], "less": ["3"]}]}';
+      let reqIdGreaterThan1OrLessThan3 = '{"or":["id", {"greater": ["1"], "less": ["3"]}]}';
+
       let reqAmountWonGreaterThan5 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}]}]}';
       let reqAmountWonLessThan300 = '{"and": ["winners", {"and": ["amountWon", {"less": ["300.00"]}]}]}';
       let reqAmountWonGreaterThan5LessThan300 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"], "less": ["300.00"]}]}]}';
@@ -418,7 +425,7 @@ describe('Querying Data', () => {
         }]
         }])
       })
-    }) */
+    }) 
 
     /* describe('Querying DEEP requests', ()=> {
       let reqQuestion = '{"deep": [{"and": ["question"]}]}'

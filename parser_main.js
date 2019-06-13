@@ -130,7 +130,7 @@ function dataMatchesOrQuery(query, field, data) {
     return matches;
 }
 
-function lookingForNestingContents(input) {
+function isLogicFn(input) {
     return input !== undefined && _.isPlainObject(input)
 }
 
@@ -146,7 +146,7 @@ function and(query, data) {
             return undefined;
         }
 
-        if (lookingForNestingContents(fieldNext)) {
+        if (isLogicFn(fieldNext)) {
             if (lookingForSpecificFieldValue(fieldNext)) {
                 if (dataHasValueFromField(fieldNext, data, "and", field)) {
                     andObj = data;
@@ -185,7 +185,7 @@ function or(query, data) {
         let field = query[i];
         let fieldNext = query[i + 1];
 
-        if (lookingForNestingContents(fieldNext)) {
+        if (isLogicFn(fieldNext)) {
             if (lookingForSpecificFieldValue(fieldNext)) {
                 if (dataHasValueFromField(fieldNext, data, "or", field)) {
                     returnObj = data;
