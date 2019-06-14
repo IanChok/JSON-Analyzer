@@ -137,9 +137,28 @@ function isLogicFn(input) {
 // {and: [first_name, id, {greater: 2}]}
 
 function and(query, data) {
+    let i = 0;
+    let field = query[i];
+    let fieldNext = query[i+1];
+    let tempData;
+    let resultObj = {};
+
+    if(isUndefined(data[field])){
+        return undefined;
+    }
+
+    while(isLogicFn(fieldNext)){
+        tempData = handleLogic_and();
+    }
+
+    while(i < query.length){
+        
+    }
+
+
+    //----
     let returnObj = {};
     let andObj = null;
-
     for (let i = 0; i < query.length; i++) {
         let field = query[i];
         let fieldNext = query[i + 1];
@@ -178,8 +197,23 @@ function and(query, data) {
     return returnObj;
 }
 
-function handleLogic_and(){
-    //TODO   
+function handleLogic_and(field, fieldNext, data){
+    if (lookingForSpecificFieldValue(fieldNext)) {
+        if (dataHasValueFromField(fieldNext, data, "and", field)) {
+            andObj = data;
+            i += 1;
+        } else {
+            return undefined;
+        }
+
+    } else {
+        let temp = recurseWithNextLogicFn(fieldNext, data[field], "and", field);
+        if (isUndefined(temp)) {
+            return undefined;
+        }
+        returnObj[field] = temp
+        i += 1;
+    } 
 }
 
 function or(query, data) {
