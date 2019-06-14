@@ -46,10 +46,14 @@ function processDataArray(req, data, cond, field) {
     _.forEach(data, (obj) => {
         console.log('process #: ', ++i);
         let temp = processReq(req, obj, cond, field);
+        console.log('processDataArray => temp: ', temp)
         if (temp !== undefined) {
+            console.log('temp !== undefined');
             wrapper.push(temp);
         }
     })
+
+    console.log('wrapper: ', wrapper)
 
     return wrapper;
 }
@@ -130,92 +134,128 @@ function dataMatchesOrQuery(query, field, data) {
     return matches;
 }
 
+function isFilter(input) {
+    if (isLogicFn(input)) {
+        for (let i in input) {
+            if (i === "equal" || i === "greater" || i === "less") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 function isLogicFn(input) {
     return input !== undefined && _.isPlainObject(input)
 }
 
-// {and: [first_name, id, {greater: 2}]}
-
+//AND Function
 function and(query, data) {
+    console.log('and => query: ', query, '. data: ', data);
     let i = 0;
     let field = query[i];
-    let fieldNext = query[i+1];
-    let tempData;
+    let fieldNext = query[i + 1];
     let resultObj = {};
 
-    if(isUndefined(data[field])){
-        return undefined;
-    }
-
-    while(isLogicFn(fieldNext)){
-        tempData = handleLogic_and();
-    }
-
-    while(i < query.length){
-        
-    }
-
-
-    //----
-    let returnObj = {};
-    let andObj = null;
-    for (let i = 0; i < query.length; i++) {
-        let field = query[i];
-        let fieldNext = query[i + 1];
-
-        if (isUndefined(data[field])) {
+    while (isFilter(fieldNext)) {
+        console.log('(i =', i, ')', 'fieldNext is a filter: ', fieldNext);
+        data = filterData(field, fieldNext, data, "and");
+        console.log('data: ', data);
+        if (isUndefined(data)) {
             return undefined;
         }
+        i += 2;
+        field = query[i];
+        fieldNext = query[i + 1];
+    }
 
+    if (queryHasNoMoreRequests(i, query)) {
+        return data;
+    }
+
+    while (i < query.length) {
         if (isLogicFn(fieldNext)) {
-            if (lookingForSpecificFieldValue(fieldNext)) {
-                if (dataHasValueFromField(fieldNext, data, "and", field)) {
-                    andObj = data;
-                    i += 1;
-                } else {
-                    return undefined;
-                }
+            console.log('(i =', i, ')', 'fieldNext is a logic fn: ', fieldNext);
+            let temp = recurseWithNextLogicFn(fieldNext, data[field], "and", field);
+            if (isUndefined(temp)) {
+                return undefined;
+            }
+            console.log('recursive temp: ', temp);
+            resultObj[field] = temp
+            i += 2;
+            field = query[i];
+            fieldNext = query[i + 1];
+        } else {
 
-            } else {
-                let temp = recurseWithNextLogicFn(fieldNext, data[field], "and", field);
-                if (isUndefined(temp)) {
-                    return undefined;
-                }
-                returnObj[field] = temp
-                i += 1;
+            if (isUndefined(data[field])) {
+                return undefined;
             }
 
-        } else {
-            returnObj[field] = getFieldValue(data[field]);
+            console.log('is not a logic fn (', fieldNext, ')')
+            resultObj[field] = getFieldValue(data[field]);
+            console.log('(i =', i, ')', 'field: ', field, '. getFieldValue = ', getFieldValue(data[field]));
+            i += 1
+            field = query[i];
+            fieldNext = query[i + 1];
         }
     }
 
-    if (andObj !== null) {
-        return andObj;
+    console.log('returnObj: ', util.inspect(resultObj, false, null, true));
+    return resultObj;
+}
+
+function queryHasNoMoreRequests(i, query) {
+    return i >= query.length;
+}
+
+function filterData(field, fieldNext, data, cond) {
+    if (isEqual(fieldNext)) {
+        console.log('fieldNext is equal: ', fieldNext);
+        let processedData = processQuery(fieldNext, data, cond, field)[0];
+        if (isUndefined(processedData)) {
+            console.log('processedData is undefined')
+            return undefined;
+        }
+        console.log('processedData: ', processedData);
+        return processedData;
+
+    }
+    /* else if(isGreater(fieldNext) && isLess(fieldNext)) {
+           //TODO
+       } else if(isGreater(fieldNext)){
+           //TODO
+       } else if(isLess(fieldNext)){
+           //TODO
+       } */
+    else {
+        return undefined;
+    }
+}
+
+function isEqual(obj) {
+    return isFilterHelper(obj, "equal");
+}
+
+function isGreater(obj) {
+    return isFilterHelper(obj, "greater")
+}
+
+function isLess(obj) {
+    return isFilterHelper(obj, "less")
+}
+
+function isFilterHelper(obj, cond) {
+    for (let i in obj) {
+        if (i === cond) {
+            return true;
+        }
     }
 
-    return returnObj;
+    return false;
 }
 
-function handleLogic_and(field, fieldNext, data){
-    if (lookingForSpecificFieldValue(fieldNext)) {
-        if (dataHasValueFromField(fieldNext, data, "and", field)) {
-            andObj = data;
-            i += 1;
-        } else {
-            return undefined;
-        }
-
-    } else {
-        let temp = recurseWithNextLogicFn(fieldNext, data[field], "and", field);
-        if (isUndefined(temp)) {
-            return undefined;
-        }
-        returnObj[field] = temp
-        i += 1;
-    } 
-}
-
+//OR Function
 function or(query, data) {
     let returnObj = {};
 
@@ -259,11 +299,12 @@ function or(query, data) {
 
 
 
-
+//Equal function
 function equal(query, data, cond, field) {
-    let val = query[0];
-    if (isLogicOrFn(val)) {
-        let orQuery = getLogicOrQuery(val);
+    console.log('equalFn => query: ', query, '. data: ', data)
+    let req = getRequest(query[0]);
+    if (isLogicOrFn(req)) {
+        let orQuery = getLogicOrQuery(req);
         if (!dataMatchesOrQuery(orQuery, field, data)) {
             return undefined;
         } else {
@@ -275,12 +316,21 @@ function equal(query, data, cond, field) {
         } else if (cond === "or") {
             return equalOrHelper(query, data, field);
         } else {
-            if (data[field] === val) {
+            if (data[field] === req) {
                 return data;
             }
         }
     }
     return undefined;
+}
+
+function getRequest(input) {
+    let temp = Number(input);
+    if (!isNaN(temp)) {
+        return temp;
+    }
+
+    return input;
 }
 
 function isLogicOrFn(input) {
@@ -302,8 +352,8 @@ function getLogicOrQuery(obj) {
 
 function equalAndHelper(query, data, field) {
     for (let i = 0; i < query.length; i++) {
-        const val = query[i];
-        if (data[field] !== val) {
+        const val = getRequest(query[i]);
+        if (valuesDoNotMatch(data, field, val)) {
             return undefined;
         }
     }
@@ -312,11 +362,19 @@ function equalAndHelper(query, data, field) {
 
 function equalOrHelper(query, data, field) {
     for (let i = 0; i < query.length; i++) {
-        const val = query[i];
-        if (data[field] === val) {
+        const val = getRequest(query[i]);
+        if (valuesMatch(data, field, val)) {
             return data;
         }
     }
 
     return undefined;
+}
+
+function valuesDoNotMatch(data, field, val){
+    return data[field] !== val;
+}
+
+function valuesMatch(data, field, val){
+    return data[field] === val;
 }

@@ -11,6 +11,10 @@ let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", 
 let reqWinnerThenCountryEqToGbOrCA = '{"and": ["winners", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
 let reqFirstNameEqToNoellAndLastNameEqToBea = '{"and": ["first_name", {"equal": ["Noell"]}, "last_name", {"equal": "Bea"}]}'
 let reqFirstNameEqToWillardOrLastNameEqToNonExist = '{"or": ["first_name", {"equal": ["Willard"]}, "last_name", {"equal": ["non_exist"]}]}'
+let reqStatusAndLosers = '{"and":["status", "losers"]}';
+let reqStatusAnd_WinnersThenName_LosersThenName = '{"and": ["status", "winners", {"and": ["name"]}, "losers", {"and": ["name"]}]}';
+let reqStatusEqToLosers = '{"and": ["status", {"equal": ["FAIL"]}]}'
+let reqFirstNameAndLastNameOfIdEqTo3 = '{"and": ["id", {"equal": ["3"]}, "first_name", "last_name"]}'
 
 
-parser(reqFirstNameEqToWillardOrLastNameEqToNonExist, peopleData)
+parser(reqFirstNameAndLastNameOfIdEqTo3, peopleData)
