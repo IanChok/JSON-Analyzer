@@ -361,11 +361,119 @@ describe('Querying Data', () => {
       let reqIdGreaterThan2LessThan4 = '{"and":["id", {"greater": ["2"], "less": ["4"]}]}';
       let reqIdGreaterThan2Lessthan3 = '{"and":["id", {"greater": ["2"], "less": ["3"]}]}';
       let reqIdGreaterThan5OrLessThan3= '{"or":["id", {"greater": ["5"], "less": ["3"]}]}';
-      let reqIdGreaterThan1OrLessThan3 = '{"or":["id", {"greater": ["1"], "less": ["3"]}]}';
+      let reqIdLessThan3GreaterThan1 = '{"or":["id", {"less": ["3"], "greater": ["1"]}]}';
 
       let reqAmountWonGreaterThan5 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}]}]}';
       let reqAmountWonLessThan300 = '{"and": ["winners", {"and": ["amountWon", {"less": ["300.00"]}]}]}';
       let reqAmountWonGreaterThan5LessThan300 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"], "less": ["300.00"]}]}]}';
+
+
+      it('should return "id" greater than 2 from PeopleData', () => {
+        expect(parser(reqIdGreaterThan2, peopleData)).to.eql([
+          {
+            "id": 3,
+            "first_name": "Noell",
+            "last_name": "Bea",
+            "email": "nbea2@imageshack.us",
+            "gender": "Female",
+            "ip_address": "180.66.162.255"
+          }, {
+            "id": 4,
+            "first_name": "Willard",
+            "last_name": "Valek",
+            "email": "wvalek3@vk.com",
+            "gender": "Male",
+            "ip_address": "67.76.188.26"
+          }, {
+            "id": 5,
+            "first_name": "Mooka",
+            "last_name": "Zinga",
+            "email": "mZing@lgbtq.com",
+            "gender": "Trans",
+            "ip_address": "75.36.237.44"
+          }
+        ])
+      })
+
+      it('should return "id" equal to 3 from peopleData', () => {
+        expect(parser(reqIdGreaterThan2LessThan4, peopleData)).to.eql([
+          {
+            "id": 3,
+            "first_name": "Noell",
+            "last_name": "Bea",
+            "email": "nbea2@imageshack.us",
+            "gender": "Female",
+            "ip_address": "180.66.162.255"
+          }
+        ])
+      })
+
+
+  
+      it('should return "id" less than 4 from PeopleData', () => {
+        expect(parser(reqIdLessThan4, peopleData)).to.eql([
+          {
+            "id": 1,
+            "first_name": "Jeanette",
+            "last_name": "Penddreth",
+            "email": "jpenddreth0@census.gov",
+            "gender": "Female",
+            "ip_address": "26.58.193.2"
+          }, {
+            "id": 2,
+            "first_name": "Giavani",
+            "last_name": "Frediani",
+            "email": "gfrediani1@senate.gov",
+            "gender": "Male",
+            "ip_address": "229.179.4.212"
+          }, {
+            "id": 3,
+            "first_name": "Noell",
+            "last_name": "Bea",
+            "email": "nbea2@imageshack.us",
+            "gender": "Female",
+            "ip_address": "180.66.162.255"
+          }
+        ])
+      })
+
+     it('should return [undefined] for "id" greater than 2 and less than 3 from peopleData', ()=> {
+          expect(parser(reqIdGreaterThan2Lessthan3, peopleData)).to.eql([undefined])
+      })
+
+      it('should return "id" less than 3 from peopleData', ()=> {
+        expect(parser(reqIdGreaterThan5OrLessThan3, peopleData)).to.eql([
+          {
+            "id": 1,
+            "first_name": "Jeanette",
+            "last_name": "Penddreth",
+            "email": "jpenddreth0@census.gov",
+            "gender": "Female",
+            "ip_address": "26.58.193.2"
+          }, {
+            "id": 2,
+            "first_name": "Giavani",
+            "last_name": "Frediani",
+            "email": "gfrediani1@senate.gov",
+            "gender": "Male",
+            "ip_address": "229.179.4.212"
+          }
+        ])
+      })
+
+      it('should return "id" equal to 2', () => {
+        expect(parser(reqIdLessThan3GreaterThan1, peopleData)).to.eql([
+          {
+            "id": 2,
+            "first_name": "Giavani",
+            "last_name": "Frediani",
+            "email": "gfrediani1@senate.gov",
+            "gender": "Male",
+            "ip_address": "229.179.4.212"
+          }
+        ])
+      })
+
 
       it('should return "winner" fields which have "amountWon" fields greater than 5.00 from transactionData', ()=> {
           expect(parser(reqAmountWonGreaterThan5, transactionData)).to.eql([{
