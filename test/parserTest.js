@@ -264,6 +264,10 @@ describe('Querying Data', () => {
       let reqFirstNameEqToWillardOrLastNameEqToNonExist = '{"or": ["first_name", {"equal": ["Willard"]}, "last_name", {"equal": ["non_exist"]}]}'
       let reqFirstNameEqToNonExistOrLastNameEqToBea = '{"or": ["first_name", {"equal": ["non_exist"]}, "last_name", {"equal": ["Bea"]}]}'
 
+      let reqFirstNameAndLastNameOfIdEqTo3 = '{"and": ["id", {"equal": ["3"]}, "first_name", "last_name"]}'
+      let reqNonExistFromIdEq4 = '{"and": ["id", {"equal": ["4"]}, "non_exist"]}';
+      let reqIdEqTo4andIdEq3 = '{"and": ["id", {"equal": ["4"]}, "id", {"equal": ["3"]}]}'
+
       it('should return "[udefined]" with non-existing value from transactionData', () => {
         expect(parser(reqStatusEqToLosers, transactionData)).to.eql([undefined]);
       })
@@ -351,10 +355,18 @@ describe('Querying Data', () => {
         ])
       })
 
-
-
+      it('should return "first_name" and "last_name" of "id" equal to 3', () => {
+        expect(parser(reqFirstNameAndLastNameOfIdEqTo3, peopleData)).to.eql([
+            {first_name: "Noell", last_name: "Bea"}
+        ])
+      })
+      
+      it('should return [undefined] for nonsensical equals requests', () => {
+        expect(parser(reqNonExistFromIdEq4, peopleData)).to.eql([undefined]);
+        expect(parser(reqIdEqTo4andIdEq3, peopleData)).to.eql([undefined]);
+      })
     })
-
+/* 
    describe('Querying GREATER and LESS Requests', () => {
       let reqIdGreaterThan2 = '{"and": ["id", {"greater": ["2"]}]}';
       let reqIdLessThan4 = '{"and": ["id", {"less": ["4"]}]}';
@@ -534,7 +546,7 @@ describe('Querying Data', () => {
         }])
       })
     }) 
-
+ */
     /* describe('Querying DEEP requests', ()=> {
       let reqQuestion = '{"deep": [{"and": ["question"]}]}'
       let reqQuestionWithParents = '{"deep": [{"and": ["question"]}], "parents": true}';

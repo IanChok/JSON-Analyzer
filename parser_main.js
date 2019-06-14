@@ -134,6 +134,8 @@ function isLogicFn(input) {
     return input !== undefined && _.isPlainObject(input)
 }
 
+// {and: [first_name, id, {greater: 2}]}
+
 function and(query, data) {
     let returnObj = {};
     let andObj = null;
@@ -176,7 +178,9 @@ function and(query, data) {
     return returnObj;
 }
 
-
+function handleLogic_and(){
+    //TODO   
+}
 
 function or(query, data) {
     let returnObj = {};
