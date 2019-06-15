@@ -15,6 +15,8 @@ let reqStatusAndLosers = '{"and":["status", "losers"]}';
 let reqStatusAnd_WinnersThenName_LosersThenName = '{"and": ["status", "winners", {"and": ["name"]}, "losers", {"and": ["name"]}]}';
 let reqStatusEqToLosers = '{"and": ["status", {"equal": ["FAIL"]}]}'
 let reqFirstNameAndLastNameOfIdEqTo3 = '{"and": ["id", {"equal": ["3"]}, "first_name", "last_name"]}'
+let reqNonExistFromIdEq4 = '{"and": ["id", {"equal": ["4"]}, "non_exist"]}';
+let reqStatusOrLosers = '{"or": ["status", "losers"]}';
 
 
-parser(reqFirstNameAndLastNameOfIdEqTo3, peopleData)
+parser(reqStatusOrLosers, transactionData)

@@ -186,6 +186,8 @@ describe('Querying Data', () => {
     describe('Querying OR Requests', () => {
       let reqNonExistOrStatus = '{"or": ["non_exist", "status"]}';
       let reqStatusOrLosers = '{"or": ["status", "losers"]}';
+      let reqFirstAndMiddleName_OrLastName =  '{"or": [{"and": ["last_name", "middle_name"]}, {"and": ["first_name"]}]}'
+      //TODO:
 
       it('should return "status" field from transactionData', () => {
         expect(parser(reqStatusOrLosers, transactionData)).to.eql([{
@@ -265,6 +267,8 @@ describe('Querying Data', () => {
       let reqFirstNameEqToNonExistOrLastNameEqToBea = '{"or": ["first_name", {"equal": ["non_exist"]}, "last_name", {"equal": ["Bea"]}]}'
 
       let reqFirstNameAndLastNameOfIdEqTo3 = '{"and": ["id", {"equal": ["3"]}, "first_name", "last_name"]}'
+      let reqFirstNameOfIdEqTo6OrGenderEqToMale = '{"or": ["id", {"equal": ["6"]}, "gender", {"equal": ["male"]} ,"first_name"]}';
+      let reqFirstNameOfNonExistFilter = '{"or": ["id", {"equal": ["6"]}, "first_name"]}'
       let reqNonExistFromIdEq4 = '{"and": ["id", {"equal": ["4"]}, "non_exist"]}';
       let reqIdEqTo4andIdEq3 = '{"and": ["id", {"equal": ["4"]}, "id", {"equal": ["3"]}]}';
 
@@ -361,7 +365,24 @@ describe('Querying Data', () => {
         ])
       })
       
-      it('should return [undefined] for nonsensical equals requests', () => {
+      it('should return "first_name" for all "gender" equal to male from peopleData', () => {
+        expect(parser(reqFirstNameOfIdEqTo6OrGenderEqToMale, peopleData)).to.eql([
+          {first_name: "Willard"},
+          {first_name: "Giavani"}
+        ])
+      })
+
+      it('should return "first_name" for for all objects after non_exist filter criteria from peopleData', () => {
+        expect(parser(reqFirstNameOfNonExistFilter, peopleData)).to.eql([
+          { first_name: "Jeanette" },
+          { first_name: "Giavani" },
+          { first_name: "Noell" },
+          { first_name: "Willard" },
+          { first_name: "Mooka" }
+        ]);
+      })
+
+      it('should return [undefined] for nonsensical equals requests pt. 1', () => {
         expect(parser(reqNonExistFromIdEq4, peopleData)).to.eql([undefined]);
         expect(parser(reqIdEqTo4andIdEq3, peopleData)).to.eql([undefined]);
       })

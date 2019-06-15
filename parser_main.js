@@ -54,6 +54,9 @@ function processDataArray(req, data, cond, field) {
     })
 
     console.log('wrapper: ', wrapper)
+    if (wrapper.length === 0) {
+        return [undefined];
+    }
 
     return wrapper;
 }
@@ -257,8 +260,77 @@ function isFilterHelper(obj, cond) {
 
 //OR Function
 function or(query, data) {
-    let returnObj = {};
+    console.log('or => query: ', query, '. data: ', data);
+    let i = 0;
+    let field = query[i];
+    let fieldNext = query[i + 1];
+    let tempData = undefined;
+    let resultObj = {};
 
+    while (isFilter(fieldNext)) {
+        if (_.isNil(tempData)) {
+            console.log('(i =', i, ')', 'fieldNext is a filter: ', fieldNext);
+            tempData = filterData(field, fieldNext, data, "or");
+            console.log('data: ', data);
+        }
+
+        i += 2;
+        field = query[i];
+        fieldNext = query[i + 1];
+    }
+
+    if(!_.isNil(tempData)){
+        data = tempData;
+    }
+
+    if (queryHasNoMoreRequests(i, query)) {
+        console.log('query has no more requests ')
+        if (_.isNil(tempData)) {
+            console.log('temp data is undefined!')
+            return undefined;
+        }
+
+        return data;
+    }
+
+
+    while (i < query.length) {
+        console.log('(i = ', i, ') ')
+        if (isLogicFn(fieldNext)) {
+            console.log('fieldNext is logic function: ', fieldNext);
+            let temp = processQuery(fieldNext, data[field], data, "or", field);
+            console.log('temp: ', temp);
+            if (!isUndefined(temp[0])) {
+                console.log('temp is not undefined... breaking out of while loop')
+                resultObj[field] = temp;
+                break;
+            }
+            i += 2;
+            field = query[i];
+            fieldNext = query[i + 1];
+
+        } else {
+            console.log('fieldNext is Not a logic function')
+            let temp = getFieldValue(data[field]);
+            console.log('temp: ', temp)
+            if (!_.isNil(temp)) {
+                console.log('temp is not nill, breaking out of while loop')
+                resultObj[field] = temp;
+                break;
+            }
+
+            i += 2;
+            field = query[i];
+            fieldNext = query[i + 1]
+        }
+    }
+
+    console.log('returning: ', util.inspect(resultObj, false, null, true))
+
+    return resultObj;
+
+    //-----
+    let returnObj = {};
     for (let i = 0; i < query.length; i++) {
         let field = query[i];
         let fieldNext = query[i + 1];
@@ -371,10 +443,10 @@ function equalOrHelper(query, data, field) {
     return undefined;
 }
 
-function valuesDoNotMatch(data, field, val){
+function valuesDoNotMatch(data, field, val) {
     return data[field] !== val;
 }
 
-function valuesMatch(data, field, val){
+function valuesMatch(data, field, val) {
     return data[field] === val;
 }
