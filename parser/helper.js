@@ -19,9 +19,18 @@ module.exports = {
         }
     },
 
-    returnData(data) {
+    parsedResult(data) {
         if(!_.isNil(data[0])){
             return data;
+        }
+
+        return undefined;
+    },
+
+    verifyValue(val){
+        if(!_.isNil(val)){
+            console.log('returning val: ', val)
+            return val;
         }
 
         return undefined;

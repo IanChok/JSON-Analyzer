@@ -1,36 +1,48 @@
-let help = require('./helper');
-let _ = require('lodash');
+const _ = require('./helper');
+const lo = require('lodash');
+const util = require('util');
 
 module.exports = function parser(query, data) {
     query = JSON.parse(query);
-    help.checkNullInputs(query, data);
-    let req = {...query, data};
+    _.checkNullInputs(query, data);
+    let req = {
+        ...query,
+        data
+    };
     return parserHelper(req);
 }
 
-function parserHelper(req){
-    if (_.isArray(req.data)) {
+function parserHelper(req) {
+    if (lo.isArray(req.data)) {
         const wrapper = [];
-        _.forEach(req.data, (dataObj) => {
+        lo.forEach(req.data, (dataObj) => {
             let temp = processQuery(dataObj)
-            if(!_.isNil(temp)){
+            if (!lo.isNil(temp)) {
                 wrapper.push(dataObj);
             }
         })
-        return help.returnData(wrapper);
+        console.log('wrapper: ', wrapper)
+
+        return _.parsedResult(wrapper);
 
     } else {
         let parseResult = processQuery(req)
-        return help.returnData([parseResult])
+        console.log('parsedResult: ', parseResult)
+        return _.parsedResult([parseResult])
     }
 }
 
 function processQuery(req) {
-    for(const i of Object.keys(req)){
-        switch(i) {
-            case 'and': return and(req);
-            case 'or': return or(req);
-            default: break;
+    for (const i of Object.keys(req)) {
+        switch (i) {
+            case 'and':
+                const resu = and(req);
+                console.log('resu: ', resu)
+                return resu
+            case 'or':
+                return or(req);
+            default:
+                break;
         }
     }
 }
@@ -38,29 +50,47 @@ function processQuery(req) {
 // look into nest     filter data, use as new data     look for field existence. 
 //[{and/or: ...}, {equal/greater/less: ...}, string]
 function and(req) {
-    _.forEach(req.and, (item) => {
-        const type = help.getQueryType(item);
+    let result = {};
 
-        switch(type) {
-            case 'field': return getFieldValue();
-            case 'filter field': return filterData();
-            case 'recurse': return parserHelper({item, data: req.data[]})
+    lo.forEach(req.and, (item) => {
+        const type = _.getQueryType(item);
+
+        switch (type) {
+            case 'field':
+                result[item] = getFieldValue({
+                    item,
+                    data: req.data
+                })
+                break;
+
+            case 'filter field':
+                return filterData(); //TODO:
+            case 'recurse':
+                return recurse({
+                    item,
+                    data: req.data
+                })
         }
     })
+
+    console.log('result: ', result)
+    return result;
 }
 
-function getFieldValue(){
-    
+function getFieldValue(req) {
+    let val = req.data[req.item];
+    return _.verifyValue(val);
 }
 
-function filterData(){
+function filterData() {
+
+}
+
+function recurse() {
 
 }
 
 function or(req) {
-    
+
 
 }
-
-
-
