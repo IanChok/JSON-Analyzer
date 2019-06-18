@@ -25,6 +25,20 @@ module.exports = {
         }
 
         return undefined;
+    },
+
+    getQueryType(item){
+        if(typeof item === 'string'){
+            return 'field';
+        } else {
+            for(const key of Object.keys(item)){
+                if(key === 'equal' || key === 'greater' || key === 'less'){
+                    return 'filter field'
+                }
+            }
+
+            return 'recurse'
+        }
     }
 
 }

@@ -58,10 +58,10 @@ describe('Querying Data', () => {
       let reqStatusAndLosers = '{"and":["status", "losers"]}';
       let reqFirstName = '{"and":["first_name"]}';
       let reqFirstNameAndLastName = '{"and": ["first_name", "last_name"]}';
-      let reqQuizThenSportThenQ1ThenQuestion = '{"and": ["quiz", {"and": ["sport", {"and": ["q1", {"and": ["question"]}]}]}]}';
-      let reqQuizThenSportThenQ1ThenNonExist = '{"and": ["quiz", {"and": ["sport", {"and": ["q1", {"and": ["non_exist"]}]}]}]}';
-      let reqStatusAnd_WinnersThenName_LosersThenName = '{"and": ["status", "winners", {"and": ["name"]}, "losers", {"and": ["name"]}]}';
-      let reqIdAnd_battersThenBatter = '{"and": ["id", "batters", {"and": ["batter"]}]}';
+      let reqQuizThenSportThenQ1ThenQuestion = '{"and": [{"field": "quiz", "and": [{"field": "sport", "and": [{"field": "q1", "and": ["question"]}]}]}]}';
+      let reqQuizThenSportThenQ1ThenNonExist = '{"and": [{"field": "quiz", "and": [{"field": "sport", "and": [{"field": "q1", "and": ["non_exist"]}]}]}]}';
+      let reqStatusAnd_WinnersThenName_LosersThenName = '{"and": ["status", {"field": "winners", "and": ["name"]}, {"field": "losers", "and": ["name"]}]}';
+      let reqIdAnd_battersThenBatter = '{"and": ["id", {"field": "batters", "and": ["batter"]}]}';
 
       it('should return [undefined] because "non_exist" field does not exist from transactionData', () => {
         expect(parser(reqNonExist, transactionData)).to.eql([undefined]);
@@ -202,8 +202,8 @@ describe('Querying Data', () => {
 
 
     describe('Querying AND and OR requsts', () => {
-      let reqMathThenQ1AndQ2AndQ3_OrSportsThenQ1 = '{"and":["quiz",{"or": ["maths", {"and": ["q1", "q2", "q3"]}, "sport", {"and": ["q1"]}]}]}';
-      let reqMathThenQ1AndQ2_OrSportsThenQ1 = '{"and":["quiz",{"or": ["maths", {"and": ["q1", "q2"]}, "sport", {"and": ["q1"]}]}]}';
+      let reqMathThenQ1AndQ2AndQ3_OrSportsThenQ1 = '{"and":[{"field": "quiz","or": [{"field": "maths", "and": ["q1", "q2", "q3"]}, {"field": "sport", "and": ["q1"]}]}]}';
+      let reqMathThenQ1AndQ2_OrSportsThenQ1 = '{"and":[{"field": "quiz", "or": [{"field": "maths", "and": ["q1", "q2"]}, {"field": "sport", "and": ["q1"]}]}]}';
       let reqFirstAndMiddleName_OrLastName =  '{"or": [{"and": ["last_name", "middle_name"]}, {"and": ["first_name"]}]}'
       //{and: [{or: [{field: id, equal: '2'}, bah]}, foo]}
 
@@ -272,16 +272,16 @@ describe('Querying Data', () => {
       let reqStatusEqToLosers = '{"and": [{"field": "status", "equal": ["FAIL"]}]}'
       let reqFirstNameEqToNoellAndLastNameEqToBea = '{"and": [{"field": "first_name", "equal": ["Noell"]},{"field": "last_name", "equal": ["Bea"]}]}'
       let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": [{"field": "name", "equal": ["Test2Ailbhe"]}]}]}'
-      let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", "winners", {"and": [{"field": "country", "equal": ["GB"]}, {"field": "currency", "equal": ["EUR"]}]}]}';
-      let reqWinnerThenCountryEqToGbOrCA = '{"and": ["winners", {"and": [{"field": "country", "equal": [{"or": ["GB", "CA"]}]}]}]}';
+      let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", {"field": "winners", "and": [{"field": "country", "equal": ["GB"]}, {"field": "currency", "equal": ["EUR"]}]}]}';
+      let reqWinnerThenCountryEqToGbOrCA = '{"and": [{"field": "winners", "and": [{"field": "country", "equal": [{"or": ["GB", "CA"]}]}]}]}';
       let reqFirstNameEqToWillardOrLastNameEqToNonExist = '{"or": [{"field": "first_name", "equal": ["Willard"]}, {"field": "last_name", "equal": ["non_exist"]}]}'
       let reqFirstNameEqToNonExistOrLastNameEqToBea = '{"or": [{"field": "first_name", "equal": ["non_exist"]}, {"field": "last_name", "equal": ["Bea"]}]}'
 
       let reqFirstNameAndLastNameOfIdEqTo3 = '{"and": [{"field": "id", "equal": ["3"]}, "first_name", "last_name"]}'
-      let reqFirstNameOfIdEqTo6OrGenderEqToMale = '{"or": ["id", {"equal": ["6"]}, "gender", {"equal": ["male"]} ,"first_name"]}';
-      let reqFirstNameOfNonExistFilter = '{"or": ["id", {"equal": ["6"]}, "first_name"]}'
-      let reqNonExistFromIdEq4 = '{"and": ["id", {"equal": ["4"]}, "non_exist"]}';
-      let reqIdEqTo4andIdEq3 = '{"and": ["id", {"equal": ["4"]}, "id", {"equal": ["3"]}]}';
+      let reqFirstNameOfIdEqTo6OrGenderEqToMale = '{"or": [{"field": "id", "equal": ["6"]}, {"field": "gender", "equal": ["male"]} ,"first_name"]}';
+      let reqFirstNameOfNonExistFilter = '{"or": [{"field": "id", "equal": ["6"]}, "first_name"]}'
+      let reqNonExistFromIdEq4 = '{"and": [{"field": "id", "equal": ["4"]}, "non_exist"]}';
+      let reqIdEqTo4andIdEq3 = '{"and": [{"field": "id", "equal": ["4"]}, {"field": "id", "equal": ["3"]}]}';
 
       it('should return "[undefined]" with non-existing value from transactionData', () => {
         expect(parser(reqStatusEqToLosers, transactionData)).to.eql([undefined]);
