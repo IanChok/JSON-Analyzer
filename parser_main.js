@@ -1,6 +1,6 @@
 // const and = require('../logic_functions/and');
 // const or = require('../logic_functions/or');
-const _ = require('lodash');
+const lo = require('lodash');
 const util = require('util');
 
 module.exports = function parserFn(req, data) {
@@ -27,9 +27,9 @@ function parseReq(req) {
         throw new Error('Request not a valid JSON!');
     }
 }
-
+    
 function processQuery(req, data, cond, field) {
-    if (_.isPlainObject(data)) {
+    if (lo.isPlainObject(data)) {
         return [processDataPlainObj(req, data, cond, field)];
     } else {
         return processDataArray(req, data, cond, field)
@@ -43,7 +43,7 @@ function processDataPlainObj(req, data, cond, field) {
 function processDataArray(req, data, cond, field) {
     let wrapper = [];
     let i = -1;
-    _.forEach(data, (obj) => {
+    lo.forEach(data, (obj) => {
         console.log('process #: ', ++i);
         let temp = processReq(req, obj, cond, field);
         console.log('processDataArray => temp: ', temp)
@@ -96,7 +96,7 @@ function recurse_AndFn(reqNext, data, field) {
 
 function getFieldValue(value) {
     if (value !== undefined) {
-        if (_.isPlainObject(value)) {
+        if (lo.isPlainObject(value)) {
             value = [value];
         }
     }
@@ -126,7 +126,7 @@ function dataHasValueFromField(reqNext, data, cond, field) {
 
 function dataMatchesOrQuery(query, field, data) {
     let matches = false;
-    _.forEach(query, (val) => {
+    lo.forEach(query, (val) => {
         if (data[field] === val) {
             matches = true;
             return;
@@ -150,7 +150,7 @@ function isFilter(input) {
 }
 
 function isLogicFn(input) {
-    return input !== undefined && _.isPlainObject(input)
+    return input !== undefined && lo.isPlainObject(input)
 }
 
 //AND Function
@@ -213,6 +213,7 @@ function queryHasNoMoreRequests(i, query) {
 }
 
 function filterData(field, fieldNext, data, cond) {
+    console.log('filterData => ')
     if (isEqual(fieldNext)) {
         console.log('fieldNext is equal: ', fieldNext);
         let processedData = processQuery(fieldNext, data, cond, field)[0];
@@ -261,67 +262,59 @@ function isFilterHelper(obj, cond) {
 //OR Function
 function or(query, data) {
     console.log('or => query: ', query, '. data: ', data);
-    let i = 0;
-    let field = query[i];
-    let fieldNext = query[i + 1];
-    let tempData = undefined;
+    let c = {
+        i: 0,
+        field () {return query[this.i]},
+        fieldNext () {return query[this.i + 1]},
+        data
+    }
+
     let resultObj = {};
 
-    while (isFilter(fieldNext)) {
-        if (_.isNil(tempData)) {
-            console.log('(i =', i, ')', 'fieldNext is a filter: ', fieldNext);
-            tempData = filterData(field, fieldNext, data, "or");
-            console.log('data: ', data);
-        }
+    console.log('c.fieldNext: ', c.fieldNext())
 
-        i += 2;
-        field = query[i];
-        fieldNext = query[i + 1];
-    }
-
-    if(!_.isNil(tempData)){
-        data = tempData;
-    }
-
-    if (queryHasNoMoreRequests(i, query)) {
-        console.log('query has no more requests ')
-        if (_.isNil(tempData)) {
-            console.log('temp data is undefined!')
+    if (isFilter(c.fieldNext())) {
+        filtered = filterData_OR(c, query);
+        console.log('filtered = ', util.inspect(filtered, false, null, true));
+        if(lo.isNil(filtered.data)){
             return undefined;
         }
 
-        return data;
+        c = {...filtered};
+    }
+
+    console.log('No more filters!')
+
+    if (queryHasNoMoreRequests(c.i, query)) {
+        console.log('query has no more requests ')
+        return c.data;
     }
 
 
-    while (i < query.length) {
-        console.log('(i = ', i, ') ')
-        if (isLogicFn(fieldNext)) {
-            console.log('fieldNext is logic function: ', fieldNext);
-            let temp = processQuery(fieldNext, data[field], data, "or", field);
+    while (c.i < query.length) {
+        console.log('(i = ', c.i, ') ')
+        if (isLogicFn(c.fieldNext())) {
+            console.log('fieldNext is logic function: ', c.fieldNext());
+            let temp = processQuery(c.fieldNext(), c.data[c.field()], c.data, "or", c.field());
             console.log('temp: ', temp);
             if (!isUndefined(temp[0])) {
                 console.log('temp is not undefined... breaking out of while loop')
-                resultObj[field] = temp;
+                resultObj[c.field()] = temp;
                 break;
             }
-            i += 2;
-            field = query[i];
-            fieldNext = query[i + 1];
+            c.i += 2;
 
         } else {
             console.log('fieldNext is Not a logic function')
-            let temp = getFieldValue(data[field]);
+            let temp = getFieldValue(c.data[c.field()]);
             console.log('temp: ', temp)
-            if (!_.isNil(temp)) {
+            if (!lo.isNil(temp)) {
                 console.log('temp is not nill, breaking out of while loop')
-                resultObj[field] = temp;
+                resultObj[c.field()] = temp;
                 break;
             }
-
-            i += 2;
-            field = query[i];
-            fieldNext = query[i + 1]
+            
+            c.i += 1;
         }
     }
 
@@ -353,7 +346,7 @@ function or(query, data) {
         } else {
             let value = data[field];
             if (value !== undefined) {
-                if (_.isPlainObject(value)) {
+                if (lo.isPlainObject(value)) {
                     value = [value];
                 }
                 returnObj[field] = value;
@@ -362,18 +355,35 @@ function or(query, data) {
         }
     }
 
-    if (_.size(returnObj) === 0) {
+    if (lo.size(returnObj) === 0) {
         return undefined;
     }
 
     return returnObj;
 }
 
+function filterData_OR(c, query){
+    let tempData = undefined;
+
+    while (isFilter(c.fieldNext())) {
+        if (lo.isNil(tempData)) {
+            console.log('(i =', c.i, ')', 'fieldNext is a filter: ', c.fieldNext);
+            tempData = filterData(c.field(), c.fieldNext(), c.data, "or");
+            console.log('tempData: ', tempData);
+        }
+
+        c.i += 2;
+    }
+
+    return {} = {...c, data: tempData}
+
+}
+
 
 
 //Equal function
 function equal(query, data, cond, field) {
-    console.log('equalFn => query: ', query, '. data: ', data)
+    console.log('equalFn => query: ', query, '. data: ', data, '. Field: ', field)
     let req = getRequest(query[0]);
     if (isLogicOrFn(req)) {
         let orQuery = getLogicOrQuery(req);
@@ -389,10 +399,12 @@ function equal(query, data, cond, field) {
             return equalOrHelper(query, data, field);
         } else {
             if (data[field] === req) {
+                console.log('returning data!')
                 return data;
             }
         }
     }
+    console.log('equal Fn returning Undefined')
     return undefined;
 }
 
@@ -406,7 +418,7 @@ function getRequest(input) {
 }
 
 function isLogicOrFn(input) {
-    if (_.isPlainObject(input)) {
+    if (lo.isPlainObject(input)) {
         for (let i in input) {
             if (i === "or") {
                 return true;
@@ -429,6 +441,7 @@ function equalAndHelper(query, data, field) {
             return undefined;
         }
     }
+    console.log('returning Data! (equal and helper)')
     return data;
 }
 
@@ -436,6 +449,7 @@ function equalOrHelper(query, data, field) {
     for (let i = 0; i < query.length; i++) {
         const val = getRequest(query[i]);
         if (valuesMatch(data, field, val)) {
+            console.log('returning data! (equal or helper)')
             return data;
         }
     }

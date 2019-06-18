@@ -8,13 +8,19 @@
     "lodash": "^4.17.11"
   },
   "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/node": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
     "chai": "^4.2.0",
-    "nyc": "^14.1.1",
-    "mocha": "^6.1.4"
+    "mocha": "^6.1.4",
+    "nyc": "^14.1.1"
   },
   "scripts": {
     "test": "nyc mocha",
-    "start": "node server.js"
+    "start": "node server.js",
+    "temps": "babel-node --presets es2015 server.js"
+
   },
   "repository": {
     "type": "git",

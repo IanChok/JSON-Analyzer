@@ -1,5 +1,7 @@
-const parser = require("../parser_main");
+const parser = require('../parser/parser');
 const fs = require('fs');
+
+let _ = require('../parser/parser');
 // let tempData = JSON.parse(fs.readFileSync('./sample-json/quiz.json'));
 let transactionData = JSON.parse(fs.readFileSync('./sample-json/transaction.json'));
 let peopleData = JSON.parse(fs.readFileSync('./sample-json/people.json'))
@@ -17,6 +19,8 @@ let reqStatusEqToLosers = '{"and": ["status", {"equal": ["FAIL"]}]}'
 let reqFirstNameAndLastNameOfIdEqTo3 = '{"and": ["id", {"equal": ["3"]}, "first_name", "last_name"]}'
 let reqNonExistFromIdEq4 = '{"and": ["id", {"equal": ["4"]}, "non_exist"]}';
 let reqStatusOrLosers = '{"or": ["status", "losers"]}';
+let reqNonExistOrStatus = '{"or": ["non_exist", "status"]}';
+let reqFirstNameOfIdEqTo6OrGenderEqToMale = '{"or": ["id", {"equal": ["6"]}, "gender", {"equal": ["male"]} ,"first_name"]}';
 
+parser(reqStatusAndLosers, transactionData)
 
-parser(reqStatusOrLosers, transactionData)

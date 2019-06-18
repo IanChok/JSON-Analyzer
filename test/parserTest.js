@@ -186,9 +186,6 @@ describe('Querying Data', () => {
     describe('Querying OR Requests', () => {
       let reqNonExistOrStatus = '{"or": ["non_exist", "status"]}';
       let reqStatusOrLosers = '{"or": ["status", "losers"]}';
-      let reqFirstAndMiddleName_OrLastName =  '{"or": [{"and": ["last_name", "middle_name"]}, {"and": ["first_name"]}]}'
-      //TODO:
-
       it('should return "status" field from transactionData', () => {
         expect(parser(reqStatusOrLosers, transactionData)).to.eql([{
           status: "SUCCESS"
@@ -200,11 +197,15 @@ describe('Querying Data', () => {
           status: "SUCCESS"
         }])
       })
+
     })
+
 
     describe('Querying AND and OR requsts', () => {
       let reqMathThenQ1AndQ2AndQ3_OrSportsThenQ1 = '{"and":["quiz",{"or": ["maths", {"and": ["q1", "q2", "q3"]}, "sport", {"and": ["q1"]}]}]}';
       let reqMathThenQ1AndQ2_OrSportsThenQ1 = '{"and":["quiz",{"or": ["maths", {"and": ["q1", "q2"]}, "sport", {"and": ["q1"]}]}]}';
+      let reqFirstAndMiddleName_OrLastName =  '{"or": [{"and": ["last_name", "middle_name"]}, {"and": ["first_name"]}]}'
+      //{and: [{or: [{field: id, equal: '2'}, bah]}, foo]}
 
       it('should return "sport" then "q1" field value', () => {
         expect(parser(reqMathThenQ1AndQ2AndQ3_OrSportsThenQ1, quizData)).to.eql([{
@@ -255,18 +256,28 @@ describe('Querying Data', () => {
           }
         ])
       })
+
+      it('should return all first names from peopleData', () => {
+        expect(parser(reqFirstAndMiddleName_OrLastName, peopleData)).to.eql([
+          { first_name: "Jeanette" },
+          { first_name: "Giavani" },
+          { first_name: "Noell" },
+          { first_name: "Willard" },
+          { first_name: "Mooka" }
+        ])
+    })
     })
 
     describe('Querying EQUAL Requests', () => {      
-      let reqStatusEqToLosers = '{"and": ["status", {"equal": ["FAIL"]}]}'
-      let reqFirstNameEqToNoellAndLastNameEqToBea = '{"and": ["first_name", {"equal": ["Noell"]}, "last_name", {"equal": ["Bea"]}]}'
-      let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": ["name", {"equal": ["Test2Ailbhe"]}]}]}'
-      let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", "winners", {"and": ["country", {"equal": ["GB"]}, "currency", {"equal": ["EUR"]}]}]}';
-      let reqWinnerThenCountryEqToGbOrCA = '{"and": ["winners", {"and": ["country", {"equal": [{"or": ["GB", "CA"]}]}]}]}';
-      let reqFirstNameEqToWillardOrLastNameEqToNonExist = '{"or": ["first_name", {"equal": ["Willard"]}, "last_name", {"equal": ["non_exist"]}]}'
-      let reqFirstNameEqToNonExistOrLastNameEqToBea = '{"or": ["first_name", {"equal": ["non_exist"]}, "last_name", {"equal": ["Bea"]}]}'
+      let reqStatusEqToLosers = '{"and": [{"field": "status", "equal": ["FAIL"]}]}'
+      let reqFirstNameEqToNoellAndLastNameEqToBea = '{"and": [{"field": "first_name", "equal": ["Noell"]},{"field": "last_name", "equal": ["Bea"]}]}'
+      let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": [{"field": "name", "equal": ["Test2Ailbhe"]}]}]}'
+      let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = '{"and": ["status", "winners", {"and": [{"field": "country", "equal": ["GB"]}, {"field": "currency", "equal": ["EUR"]}]}]}';
+      let reqWinnerThenCountryEqToGbOrCA = '{"and": ["winners", {"and": [{"field": "country", "equal": [{"or": ["GB", "CA"]}]}]}]}';
+      let reqFirstNameEqToWillardOrLastNameEqToNonExist = '{"or": [{"field": "first_name", "equal": ["Willard"]}, {"field": "last_name", "equal": ["non_exist"]}]}'
+      let reqFirstNameEqToNonExistOrLastNameEqToBea = '{"or": [{"field": "first_name", "equal": ["non_exist"]}, {"field": "last_name", "equal": ["Bea"]}]}'
 
-      let reqFirstNameAndLastNameOfIdEqTo3 = '{"and": ["id", {"equal": ["3"]}, "first_name", "last_name"]}'
+      let reqFirstNameAndLastNameOfIdEqTo3 = '{"and": [{"field": "id", "equal": ["3"]}, "first_name", "last_name"]}'
       let reqFirstNameOfIdEqTo6OrGenderEqToMale = '{"or": ["id", {"equal": ["6"]}, "gender", {"equal": ["male"]} ,"first_name"]}';
       let reqFirstNameOfNonExistFilter = '{"or": ["id", {"equal": ["6"]}, "first_name"]}'
       let reqNonExistFromIdEq4 = '{"and": ["id", {"equal": ["4"]}, "non_exist"]}';
