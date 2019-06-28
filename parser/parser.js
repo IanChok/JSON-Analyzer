@@ -14,7 +14,7 @@ module.exports = function parser(query, data) {
 
 /**
  * Processes data objects one at a time. 
- * @param {Query, Data} req 
+ * @param {Object} req {Query, Data} 
  */
 function processQuery(req) {
     console.log('processQuery (req) => ', req)
@@ -25,7 +25,7 @@ function processQuery(req) {
             console.log('data # ', processNum);
             let temp = processQueryHelper({...req, data: dataObj})
             if (!lo.isNil(temp)) {
-                wrapper.push(dataObj);
+                wrapper.push(temp);
             }
 
             processNum += 1;
@@ -48,7 +48,7 @@ function processQueryHelper(req) {
 
 /**
  * Ensures each item is truthy in the array [...].
- * @param {Query, Data} req 
+ * @param {Object} req {Query, Data}
  * @example
  *  and({'and': ['fieldA', 'fieldB'], 'data': {'fieldA': 'valueA', 'fieldB': 'valueB'}});
  * @returns {Object} result that has properties requested by each item from data
@@ -73,13 +73,13 @@ function and(req) {
 
             case 'filter_field':
                 console.log('type: filter_field')
-                tempVal = filterData(item, req.data);
+                tempVal = filterData({filter: item, data: req.data});
                 field = item.field;
                 break;
 
             case 'recurse':
                 console.log('type: recurse')
-                tempVal = recurse({item, data: req.data});
+                tempVal = recurse({filter: item, data: req.data});
                 field = item.field;
         }
 
@@ -92,6 +92,7 @@ function and(req) {
         console.log('result obj currently: ', result);
     })
 
+    console.log('and => returning: ', result)
     return (fail ? undefined : result)
 }
 
@@ -107,25 +108,24 @@ function getFieldValue(req) {
 /**
  * Filters the data based on the query filters
  * 
- * @param {Field, Equal/Greater/Less} filter
- * @param {Object} data
+ * @param {Object} req {filter: {Field, Equal/Greater/Less}, data: {...}} 
  * @example 
  *  filterData({"field": "foo", "equal": "blah"}, {data: ...})
  * 
  * @returns new {data: ...}
  */
-function filterData(filter, data) {
+function filterData(req) {
     let tempData;
 
-    if (lo.has(filter, 'equal')) {
-        tempData = equal(filter, data);
+    if (lo.has(req.filter, 'equal')) {
+        tempData = equal(req.filter, req.data);
 
-    } else if (lo.has(filter, 'greater')) {
+    } else if (lo.has(req.filter, 'greater')) {
         //TODO: filter data with greater
-    } else if (lo.has(filter, 'less')) {
+    } else if (lo.has(req.filter, 'less')) {
         //TODO: filter data with less
     } else {
-        throw new Error(`unrecognized filter: ${filter}`)
+        throw new Error(`unrecognized filter: ${req.filter}`)
     }
 
     return (tempData === undefined? undefined : tempData);
@@ -167,15 +167,16 @@ function equal_options(filter, data){
  * @param {Object} data 
  * @returns field value or filtered data at the nested level. 
  */
-function recurse(filter, data) {
-    const fieldVal = data[filter.field];
+function recurse(req) {
+    console.log('recurse => filter:  ', req.filter, '. data: ', req.data)
+    const fieldVal = req.data[req.filter.field];
 
     if(fieldVal !== undefined) {
-        const input = {};
-        if(lo.has(filter, 'and')){
-            input = {"and": filter.and, data: fieldVal}
+        let input;
+        if(lo.has(req.filter, 'and')){
+            input = {"and": req.filter.and, data: fieldVal}
         } else {
-            input = {"or": filter.or, data: fieldVal}
+            input = {"or": req.filter.or, data: fieldVal}
         }
 
         return processQuery(input)

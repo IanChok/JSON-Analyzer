@@ -4,8 +4,8 @@ const fs = require('fs');
 let _ = require('../parser/parser');
 // let tempData = JSON.parse(fs.readFileSync('./sample-json/quiz.json'));
 let transactionData = JSON.parse(fs.readFileSync('./sample-json/transaction.json'));
-let peopleData = JSON.parse(fs.readFileSync('./sample-json/people.json'))
-
+let peopleData = JSON.parse(fs.readFileSync('./sample-json/people.json'));
+let quizData = JSON.parse(fs.readFileSync('./sample-json/quiz.json'));
 let reqMathThenQ1AndQ2_OrSportsThenQ1 = '{"and":["quiz",{"or": ["maths", {"and": ["q1", "q2", "q3"]}, "sport", {"and": ["q1"]}]}]}';
 let reqQuizThenSportThenQ1ThenQuestion = '{"and": ["quiz", {"and": ["sport", {"and": ["q1", {"and": ["question"]}]}]}]}';
 let reqWinnersThenNameEqToTest2Ailbhe = '{"and": ["winners", {"and": ["name", {"equal": ["Test2Ailbhe"]}]}]}';
@@ -23,6 +23,7 @@ let reqNonExistOrStatus = '{"or": ["non_exist", "status"]}';
 let reqFirstNameOfIdEqTo6OrGenderEqToMale = '{"or": ["id", {"equal": ["6"]}, "gender", {"equal": ["male"]} ,"first_name"]}';
 let reqNonExist = { "and": ["non_exist"] };
 let reqFirstName = { "and": ["first_name"] };
+let reqQuizThenSportThenQ1ThenNonExist = { "and": [{ "field": "quiz", "and": [{ "field": "sport", "and": [{ "field": "q1", "and": ["non_exist"] }] }] }] };
 
 
-parser(reqFirstName, peopleData)
+parser(reqQuizThenSportThenQ1ThenNonExist, quizData)
