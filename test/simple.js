@@ -21,6 +21,8 @@ let reqNonExistFromIdEq4 = '{"and": ["id", {"equal": ["4"]}, "non_exist"]}';
 let reqStatusOrLosers = '{"or": ["status", "losers"]}';
 let reqNonExistOrStatus = '{"or": ["non_exist", "status"]}';
 let reqFirstNameOfIdEqTo6OrGenderEqToMale = '{"or": ["id", {"equal": ["6"]}, "gender", {"equal": ["male"]} ,"first_name"]}';
+let reqNonExist = { "and": ["non_exist"] };
+let reqFirstName = { "and": ["first_name"] };
 
-parser(reqStatusAndLosers, transactionData)
 
+parser(reqFirstName, peopleData)

@@ -17,10 +17,9 @@
     "nyc": "^14.1.1"
   },
   "scripts": {
+    "simple": "node test/simple.js",
     "test": "nyc mocha",
-    "start": "node server.js",
-    "temps": "babel-node --presets es2015 server.js"
-
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",

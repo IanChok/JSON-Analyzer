@@ -21,10 +21,11 @@ module.exports = {
 
     parsedResult(data) {
         if(!_.isNil(data[0])){
+            console.log('parsedResult => returning ', data)
             return data;
         }
 
-        return undefined;
+        return [undefined];
     },
 
     verifyValue(val){

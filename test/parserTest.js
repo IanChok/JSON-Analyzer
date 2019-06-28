@@ -1,5 +1,5 @@
 const server = require('../server');
-const parser = require('../parser_main');
+const parser = require('../parser/parser');
 const expect = require('chai').expect;
 
 let transactionPath = './sample-json/transaction.json';
@@ -53,15 +53,15 @@ describe('Querying Data', () => {
 
   describe('Returning Filtered Data', () => {
     describe('Querying AND Requests', () => {
-      let reqNonExist = {"and": ["non_exist"]};
-      let reqStatus = {"and": ["status"]};
-      let reqStatusAndLosers = {"and":["status", "losers"]};
-      let reqFirstName = {"and":["first_name"]};
-      let reqFirstNameAndLastName = {"and": ["first_name", "last_name"]};
-      let reqQuizThenSportThenQ1ThenQuestion = {"and": [{"field": "quiz", "and": [{"field": "sport", "and": [{"field": "q1", "and": ["question"]}]}]}]};
-      let reqQuizThenSportThenQ1ThenNonExist = {"and": [{"field": "quiz", "and": [{"field": "sport", "and": [{"field": "q1", "and": ["non_exist"]}]}]}]};
-      let reqStatusAnd_WinnersThenName_LosersThenName = {"and": ["status", {"field": "winners", "and": ["name"]}, {"field": "losers", "and": ["name"]}]};
-      let reqIdAnd_battersThenBatter = {"and": ["id", {"field": "batters", "and": ["batter"]}]};
+      let reqNonExist = { "and": ["non_exist"] };
+      let reqStatus = { "and": ["status"] };
+      let reqStatusAndLosers = { "and": ["status", "losers"] };
+      let reqFirstName = { "and": ["first_name"] };
+      let reqFirstNameAndLastName = { "and": ["first_name", "last_name"] };
+      let reqQuizThenSportThenQ1ThenQuestion = { "and": [{ "field": "quiz", "and": [{ "field": "sport", "and": [{ "field": "q1", "and": ["question"] }] }] }] };
+      let reqQuizThenSportThenQ1ThenNonExist = { "and": [{ "field": "quiz", "and": [{ "field": "sport", "and": [{ "field": "q1", "and": ["non_exist"] }] }] }] };
+      let reqStatusAnd_WinnersThenName_LosersThenName = { "and": ["status", { "field": "winners", "and": ["name"] }, { "field": "losers", "and": ["name"] }] };
+      let reqIdAnd_battersThenBatter = { "and": ["id", { "field": "batters", "and": ["batter"] }] };
 
       it('should return [undefined] because "non_exist" field does not exist from transactionData', () => {
         expect(parser(reqNonExist, transactionData)).to.eql([undefined]);
@@ -102,7 +102,7 @@ describe('Querying Data', () => {
           { first_name: "Giavani", last_name: "Frediani" },
           { first_name: "Noell", last_name: "Bea" },
           { first_name: "Willard", last_name: "Valek" },
-          { first_name: "Mooka", last_name: "Zinga"}
+          { first_name: "Mooka", last_name: "Zinga" }
         ])
       })
 
@@ -183,402 +183,402 @@ describe('Querying Data', () => {
     })
 
 
-    describe('Querying OR Requests', () => {
-      let reqNonExistOrStatus = {"or": ["non_exist", "status"]};
-      let reqStatusOrLosers = {"or": ["status", "losers"]};
-      it('should return "status" field from transactionData', () => {
-        expect(parser(reqStatusOrLosers, transactionData)).to.eql([{
-          status: "SUCCESS"
-        }]);
+    /*   describe('Querying OR Requests', () => {
+        let reqNonExistOrStatus = {"or": ["non_exist", "status"]};
+        let reqStatusOrLosers = {"or": ["status", "losers"]};
+        it('should return "status" field from transactionData', () => {
+          expect(parser(reqStatusOrLosers, transactionData)).to.eql([{
+            status: "SUCCESS"
+          }]);
+        })
+  
+        it('should return "status" field because "non_exist" field doesn\'t exist from transactionData', () => {
+          expect(parser(reqNonExistOrStatus, transactionData)).to.eql([{
+            status: "SUCCESS"
+          }])
+        })
+  
       })
-
-      it('should return "status" field because "non_exist" field doesn\'t exist from transactionData', () => {
-        expect(parser(reqNonExistOrStatus, transactionData)).to.eql([{
-          status: "SUCCESS"
-        }])
-      })
-
-    })
-
-
-    describe('Querying AND and OR requsts', () => {
-      let reqMathThenQ1AndQ2AndQ3_OrSportsThenQ1 = {"and":[{"field": "quiz","or": [{"field": "maths", "and": ["q1", "q2", "q3"]}, {"field": "sport", "and": ["q1"]}]}]};
-      let reqMathThenQ1AndQ2_OrSportsThenQ1 = {"and":[{"field": "quiz", "or": [{"field": "maths", "and": ["q1", "q2"]}, {"field": "sport", "and": ["q1"]}]}]};
-      let reqFirstAndMiddleName_OrLastName =  {"or": [{"and": ["last_name", "middle_name"]}, {"and": ["first_name"]}]}
-      //{and: [{or: [{field: id, equal: '2'}, bah]}, foo]}
-
-      it('should return "sport" then "q1" field value', () => {
-        expect(parser(reqMathThenQ1AndQ2AndQ3_OrSportsThenQ1, quizData)).to.eql([{
-          quiz: [{
-            sport: [{
-              q1: [{
-                question: "Which one is correct team name in NBA?",
-                options: [
-                  "New York Bulls",
-                  "Los Angeles Kings",
-                  "Golden State Warriros",
-                  "Huston Rocket"
-                ],
-                answer: "Huston Rocket"
-              }]
-            }]
-          }]
-        }])
-      })
-
-      it('should return "math" then "q1" & "q2" field', () => {
-        expect(parser(reqMathThenQ1AndQ2_OrSportsThenQ1, quizData)).to.eql([
-          {
+  
+  
+      describe('Querying AND and OR requsts', () => {
+        let reqMathThenQ1AndQ2AndQ3_OrSportsThenQ1 = {"and":[{"field": "quiz","or": [{"field": "maths", "and": ["q1", "q2", "q3"]}, {"field": "sport", "and": ["q1"]}]}]};
+        let reqMathThenQ1AndQ2_OrSportsThenQ1 = {"and":[{"field": "quiz", "or": [{"field": "maths", "and": ["q1", "q2"]}, {"field": "sport", "and": ["q1"]}]}]};
+        let reqFirstAndMiddleName_OrLastName =  {"or": [{"and": ["last_name", "middle_name"]}, {"and": ["first_name"]}]}
+        //{and: [{or: [{field: id, equal: '2'}, bah]}, foo]}
+  
+        it('should return "sport" then "q1" field value', () => {
+          expect(parser(reqMathThenQ1AndQ2AndQ3_OrSportsThenQ1, quizData)).to.eql([{
             quiz: [{
-              maths: [{
+              sport: [{
                 q1: [{
-                  question: "5 + 7 = ?",
+                  question: "Which one is correct team name in NBA?",
                   options: [
-                    "10",
-                    "11",
-                    "12",
-                    "13"
+                    "New York Bulls",
+                    "Los Angeles Kings",
+                    "Golden State Warriros",
+                    "Huston Rocket"
                   ],
-                  answer: "12"
-                }],
-                q2: [{
-                  question: "12 - 8 = ?",
-                  options: [
-                    "1",
-                    "2",
-                    "3",
-                    "4"
-                  ],
-                  answer: "4"
+                  answer: "Huston Rocket"
                 }]
               }]
             }]
-          }
-        ])
+          }])
+        })
+  
+        it('should return "math" then "q1" & "q2" field', () => {
+          expect(parser(reqMathThenQ1AndQ2_OrSportsThenQ1, quizData)).to.eql([
+            {
+              quiz: [{
+                maths: [{
+                  q1: [{
+                    question: "5 + 7 = ?",
+                    options: [
+                      "10",
+                      "11",
+                      "12",
+                      "13"
+                    ],
+                    answer: "12"
+                  }],
+                  q2: [{
+                    question: "12 - 8 = ?",
+                    options: [
+                      "1",
+                      "2",
+                      "3",
+                      "4"
+                    ],
+                    answer: "4"
+                  }]
+                }]
+              }]
+            }
+          ])
+        })
+  
+        it('should return all first names from peopleData', () => {
+          expect(parser(reqFirstAndMiddleName_OrLastName, peopleData)).to.eql([
+            { first_name: "Jeanette" },
+            { first_name: "Giavani" },
+            { first_name: "Noell" },
+            { first_name: "Willard" },
+            { first_name: "Mooka" }
+          ])
       })
-
-      it('should return all first names from peopleData', () => {
-        expect(parser(reqFirstAndMiddleName_OrLastName, peopleData)).to.eql([
-          { first_name: "Jeanette" },
-          { first_name: "Giavani" },
-          { first_name: "Noell" },
-          { first_name: "Willard" },
-          { first_name: "Mooka" }
-        ])
-    })
-    })
-
-    describe('Querying EQUAL Requests', () => {      
-      let reqStatusEqToLosers = {"and": [{"field": "status", "equal": "FAIL"}]}
-      let reqFirstNameEqToNoellAndLastNameEqToBea = {"and": [{"field": "first_name", "equal": "Noell"}, {"field": "last_name", "equal": "Bea"}]}
-      let reqWinnersThenNameEqToTest2Ailbhe = {"and": ["winners", {"and": [{"field": "name", "equal": "Test2Ailbhe"}]}]}
-      let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = {"and": ["status", {"field": "winners", "and": [{"field": "country", "equal": "GB"}, {"field": "currency", "equal": "EUR"}]}]};
-      let reqWinnerThenCountryEqToGbOrCA = {"and": [{"field": "winners", "and": [{"field": "country", "equal": {"or": ["GB", "CA"]}}]}]};
-      let reqFirstNameEqToWillardOrLastNameEqToNonExist = {"or": [{"field": "first_name", "equal": "Willard"}, {"field": "last_name", "equal": "non_exist"}]}
-      let reqFirstNameEqToNonExistOrLastNameEqToBea = {"or": [{"field": "first_name", "equal": "non_exist"}, {"field": "last_name", "equal": "Bea"}]}
-
-      let reqFirstNameAndLastNameOfIdEqTo3 = {"and": [{"field": "id", "equal": "3"}, "first_name", "last_name"]}
-      let reqFirstNameOfIdEqTo6OrGenderEqToMale = {"or": [{"field": "id", "equal": "6"}, {"field": "gender", "equal": "male"} ,"first_name"]};
-      let reqFirstNameOfNonExistFilter = {"or": [{"field": "id", "equal": "6"}, "first_name"]}
-      let reqNonExistFromIdEq4 = {"and": [{"field": "id", "equal": "4"}, "non_exist"]};
-      let reqIdEqTo4andIdEq3 = {"and": [{"field": "id", "equal": "4"}, {"field": "id", "equal": "3"}]};
-
-      it('should return "[undefined]" with non-existing value from transactionData', () => {
-        expect(parser(reqStatusEqToLosers, transactionData)).to.eql([undefined]);
       })
-
-      it('should return "winner" which name has "Test2Ailbhe" from transacitonData', ()=> {
-        expect(parser(reqWinnersThenNameEqToTest2Ailbhe, transactionData)).to.eql([{
-          winners: [{
-            name: "Test2Ailbhe",
-            country: "MT",
-            amountWon: "90.95",
-            currency: "EUR"
-        }]
-        }])
-      })
-
-      it('should return "first_name" equal to "Noelle" and "last_name" equal to "Bea"', () => {
-        expect(parser(reqFirstNameEqToNoellAndLastNameEqToBea, peopleData)).to.eql([
-          {
-            id: 3,
-            first_name: "Noell",
-            last_name: "Bea",
-            email: "nbea2@imageshack.us",
-            gender: "Female",
-            ip_address: "180.66.162.255"
-          }
-        ])
-      })
-
-      it('should return "status" and "winner" fields which has "country" equal to "GB" and "curency" equal to "EUR"', () => {
-        expect(parser(reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur, transactionData)).to.eql([{
-          status: "SUCCESS",
-          winners: [{
-              name: null,
-              country: "GB",
-              amountWon: "396.00",
+  
+      describe('Querying EQUAL Requests', () => {      
+        let reqStatusEqToLosers = {"and": [{"field": "status", "equal": "FAIL"}]}
+        let reqFirstNameEqToNoellAndLastNameEqToBea = {"and": [{"field": "first_name", "equal": "Noell"}, {"field": "last_name", "equal": "Bea"}]}
+        let reqWinnersThenNameEqToTest2Ailbhe = {"and": ["winners", {"and": [{"field": "name", "equal": "Test2Ailbhe"}]}]}
+        let reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur = {"and": ["status", {"field": "winners", "and": [{"field": "country", "equal": "GB"}, {"field": "currency", "equal": "EUR"}]}]};
+        let reqWinnerThenCountryEqToGbOrCA = {"and": [{"field": "winners", "and": [{"field": "country", "equal": {"or": ["GB", "CA"]}}]}]};
+        let reqFirstNameEqToWillardOrLastNameEqToNonExist = {"or": [{"field": "first_name", "equal": "Willard"}, {"field": "last_name", "equal": "non_exist"}]}
+        let reqFirstNameEqToNonExistOrLastNameEqToBea = {"or": [{"field": "first_name", "equal": "non_exist"}, {"field": "last_name", "equal": "Bea"}]}
+  
+        let reqFirstNameAndLastNameOfIdEqTo3 = {"and": [{"field": "id", "equal": "3"}, "first_name", "last_name"]}
+        let reqFirstNameOfIdEqTo6OrGenderEqToMale = {"or": [{"field": "id", "equal": "6"}, {"field": "gender", "equal": "male"} ,"first_name"]};
+        let reqFirstNameOfNonExistFilter = {"or": [{"field": "id", "equal": "6"}, "first_name"]}
+        let reqNonExistFromIdEq4 = {"and": [{"field": "id", "equal": "4"}, "non_exist"]};
+        let reqIdEqTo4andIdEq3 = {"and": [{"field": "id", "equal": "4"}, {"field": "id", "equal": "3"}]};
+  
+        it('should return "[undefined]" with non-existing value from transactionData', () => {
+          expect(parser(reqStatusEqToLosers, transactionData)).to.eql([undefined]);
+        })
+  
+        it('should return "winner" which name has "Test2Ailbhe" from transacitonData', ()=> {
+          expect(parser(reqWinnersThenNameEqToTest2Ailbhe, transactionData)).to.eql([{
+            winners: [{
+              name: "Test2Ailbhe",
+              country: "MT",
+              amountWon: "90.95",
               currency: "EUR"
           }]
-        }])
-      })
-
-      it('should return "winner" field which has "country" fields equal to "GB" or "CA" from transactionData', () => {
-        expect(parser(reqWinnerThenCountryEqToGbOrCA, transactionData)).to.eql([{
-          winners: [{
-            name: null,
-            country: "GB",
-            amountWon: "396.00",
-            currency: "EUR"
-        }, {
-            name: "omegazhenga",
-            country: "GB",
-            amountWon: "4.00",
-            currency: "GBP"
-          }, {
-            name: "pwnmaster",
-            country: "CA",
-            amountWon: "80.25",
-            currency: "CAD"
-          }]
-        }])
-      })
-
-      it('should return "first_name" equal to "Willard" from peopleData', () => {
-        expect(parser(reqFirstNameEqToWillardOrLastNameEqToNonExist, peopleData)).to.eql([
-          {
-            id: 4,
-            first_name: "Willard",
-            last_name: "Valek",
-            email: "wvalek3@vk.com",
-            gender: "Male",
-            ip_address: "67.76.188.26"
-          }
-        ])
-      })
-
-      it('should return "last_name" equal to "Bea" from peopleData', () => {
-        expect(parser(reqFirstNameEqToNonExistOrLastNameEqToBea, peopleData)).to.eql([
-          {
-            id: 3,
-            first_name: "Noell",
-            last_name: "Bea",
-            email: "nbea2@imageshack.us",
-            gender: "Female",
-            ip_address: "180.66.162.255"
-          }
-        ])
-      })
-
-      it('should return "first_name" and "last_name" of "id" equal to 3', () => {
-        expect(parser(reqFirstNameAndLastNameOfIdEqTo3, peopleData)).to.eql([
-            {first_name: "Noell", last_name: "Bea"}
-        ])
-      })
-      
-      it('should return "first_name" for all "gender" equal to male from peopleData', () => {
-        expect(parser(reqFirstNameOfIdEqTo6OrGenderEqToMale, peopleData)).to.eql([
-          {first_name: "Willard"},
-          {first_name: "Giavani"}
-        ])
-      })
-
-      it('should return "first_name" for for all objects after non_exist filter criteria from peopleData', () => {
-        expect(parser(reqFirstNameOfNonExistFilter, peopleData)).to.eql([
-          { first_name: "Jeanette" },
-          { first_name: "Giavani" },
-          { first_name: "Noell" },
-          { first_name: "Willard" },
-          { first_name: "Mooka" }
-        ]);
-      })
-
-      it('should return [undefined] for nonsensical equals requests pt. 1', () => {
-        expect(parser(reqNonExistFromIdEq4, peopleData)).to.eql([undefined]);
-        expect(parser(reqIdEqTo4andIdEq3, peopleData)).to.eql([undefined]);
-      })
-    })
-/* 
-   describe('Querying GREATER and LESS Requests', () => {
-      let reqIdGreaterThan2 = '{"and": ["id", {"greater": ["2"]}]}';
-      let reqIdLessThan4 = '{"and": ["id", {"less": ["4"]}]}';
-      let reqIdGreaterThan2LessThan4 = '{"and":["id", {"greater": ["2"], "less": ["4"]}]}';
-      let reqIdGreaterThan2Lessthan3 = '{"and":["id", {"greater": ["2"], "less": ["3"]}]}';
-      let reqIdGreaterThan5OrLessThan3= '{"or":["id", {"greater": ["5"], "less": ["3"]}]}';
-      let reqIdLessThan3GreaterThan1 = '{"or":["id", {"less": ["3"], "greater": ["1"]}]}';
-
-      let reqAmountWonGreaterThan5 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}]}]}';
-      let reqAmountWonLessThan300 = '{"and": ["winners", {"and": ["amountWon", {"less": ["300.00"]}]}]}';
-      let reqAmountWonGreaterThan5LessThan300 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"], "less": ["300.00"]}]}]}';
-
-
-      it('should return "id" greater than 2 from PeopleData', () => {
-        expect(parser(reqIdGreaterThan2, peopleData)).to.eql([
-          {
-            "id": 3,
-            "first_name": "Noell",
-            "last_name": "Bea",
-            "email": "nbea2@imageshack.us",
-            "gender": "Female",
-            "ip_address": "180.66.162.255"
-          }, {
-            "id": 4,
-            "first_name": "Willard",
-            "last_name": "Valek",
-            "email": "wvalek3@vk.com",
-            "gender": "Male",
-            "ip_address": "67.76.188.26"
-          }, {
-            "id": 5,
-            "first_name": "Mooka",
-            "last_name": "Zinga",
-            "email": "mZing@lgbtq.com",
-            "gender": "Trans",
-            "ip_address": "75.36.237.44"
-          }
-        ])
-      })
-
-      it('should return "id" equal to 3 from peopleData', () => {
-        expect(parser(reqIdGreaterThan2LessThan4, peopleData)).to.eql([
-          {
-            "id": 3,
-            "first_name": "Noell",
-            "last_name": "Bea",
-            "email": "nbea2@imageshack.us",
-            "gender": "Female",
-            "ip_address": "180.66.162.255"
-          }
-        ])
-      })
-
-
+          }])
+        })
   
-      it('should return "id" less than 4 from PeopleData', () => {
-        expect(parser(reqIdLessThan4, peopleData)).to.eql([
-          {
-            "id": 1,
-            "first_name": "Jeanette",
-            "last_name": "Penddreth",
-            "email": "jpenddreth0@census.gov",
-            "gender": "Female",
-            "ip_address": "26.58.193.2"
-          }, {
-            "id": 2,
-            "first_name": "Giavani",
-            "last_name": "Frediani",
-            "email": "gfrediani1@senate.gov",
-            "gender": "Male",
-            "ip_address": "229.179.4.212"
-          }, {
-            "id": 3,
-            "first_name": "Noell",
-            "last_name": "Bea",
-            "email": "nbea2@imageshack.us",
-            "gender": "Female",
-            "ip_address": "180.66.162.255"
-          }
-        ])
-      })
-
-     it('should return [undefined] for "id" greater than 2 and less than 3 from peopleData', ()=> {
-          expect(parser(reqIdGreaterThan2Lessthan3, peopleData)).to.eql([undefined])
-      })
-
-      it('should return "id" less than 3 from peopleData', ()=> {
-        expect(parser(reqIdGreaterThan5OrLessThan3, peopleData)).to.eql([
-          {
-            "id": 1,
-            "first_name": "Jeanette",
-            "last_name": "Penddreth",
-            "email": "jpenddreth0@census.gov",
-            "gender": "Female",
-            "ip_address": "26.58.193.2"
-          }, {
-            "id": 2,
-            "first_name": "Giavani",
-            "last_name": "Frediani",
-            "email": "gfrediani1@senate.gov",
-            "gender": "Male",
-            "ip_address": "229.179.4.212"
-          }
-        ])
-      })
-
-      it('should return "id" equal to 2', () => {
-        expect(parser(reqIdLessThan3GreaterThan1, peopleData)).to.eql([
-          {
-            "id": 2,
-            "first_name": "Giavani",
-            "last_name": "Frediani",
-            "email": "gfrediani1@senate.gov",
-            "gender": "Male",
-            "ip_address": "229.179.4.212"
-          }
-        ])
-      })
-
-
-      it('should return "winner" fields which have "amountWon" fields greater than 5.00 from transactionData', ()=> {
-          expect(parser(reqAmountWonGreaterThan5, transactionData)).to.eql([{
+        it('should return "first_name" equal to "Noelle" and "last_name" equal to "Bea"', () => {
+          expect(parser(reqFirstNameEqToNoellAndLastNameEqToBea, peopleData)).to.eql([
+            {
+              id: 3,
+              first_name: "Noell",
+              last_name: "Bea",
+              email: "nbea2@imageshack.us",
+              gender: "Female",
+              ip_address: "180.66.162.255"
+            }
+          ])
+        })
+  
+        it('should return "status" and "winner" fields which has "country" equal to "GB" and "curency" equal to "EUR"', () => {
+          expect(parser(reqStatusAndWinnerThenCountryEqToGbAndCurrencyEqToEur, transactionData)).to.eql([{
+            status: "SUCCESS",
+            winners: [{
+                name: null,
+                country: "GB",
+                amountWon: "396.00",
+                currency: "EUR"
+            }]
+          }])
+        })
+  
+        it('should return "winner" field which has "country" fields equal to "GB" or "CA" from transactionData', () => {
+          expect(parser(reqWinnerThenCountryEqToGbOrCA, transactionData)).to.eql([{
             winners: [{
               name: null,
               country: "GB",
               amountWon: "396.00",
               currency: "EUR"
           }, {
-              name: "Test2Ailbhe",
-              country: "MT",
-              amountWon: "90.95",
-              currency: "EUR"
-          }, {
+              name: "omegazhenga",
+              country: "GB",
+              amountWon: "4.00",
+              currency: "GBP"
+            }, {
               name: "pwnmaster",
               country: "CA",
               amountWon: "80.25",
               currency: "CAD"
-          }]
+            }]
           }])
-      })
-
-      it('should return "winner" fields which have "amountWon" fields less than 300.00 from transactionData', ()=> {
-        expect(parser(reqAmountWonLessThan300, transactionData)).to.eql([{
-          winners: [{
-            name: "Test2Ailbhe",
-            country: "MT",
-            amountWon: "90.95",
-            currency: "EUR"
-        }, {
-            name: "omegazhenga",
-            country: "GB",
-            amountWon: "4.00",
-            currency: "GBP"
-        }, {
-            name: "pwnmaster",
-            country: "CA",
-            amountWon: "80.25",
-            currency: "CAD"
-        }]
-        }])
-      })
-
+        })
+  
+        it('should return "first_name" equal to "Willard" from peopleData', () => {
+          expect(parser(reqFirstNameEqToWillardOrLastNameEqToNonExist, peopleData)).to.eql([
+            {
+              id: 4,
+              first_name: "Willard",
+              last_name: "Valek",
+              email: "wvalek3@vk.com",
+              gender: "Male",
+              ip_address: "67.76.188.26"
+            }
+          ])
+        })
+  
+        it('should return "last_name" equal to "Bea" from peopleData', () => {
+          expect(parser(reqFirstNameEqToNonExistOrLastNameEqToBea, peopleData)).to.eql([
+            {
+              id: 3,
+              first_name: "Noell",
+              last_name: "Bea",
+              email: "nbea2@imageshack.us",
+              gender: "Female",
+              ip_address: "180.66.162.255"
+            }
+          ])
+        })
+  
+        it('should return "first_name" and "last_name" of "id" equal to 3', () => {
+          expect(parser(reqFirstNameAndLastNameOfIdEqTo3, peopleData)).to.eql([
+              {first_name: "Noell", last_name: "Bea"}
+          ])
+        })
+        
+        it('should return "first_name" for all "gender" equal to male from peopleData', () => {
+          expect(parser(reqFirstNameOfIdEqTo6OrGenderEqToMale, peopleData)).to.eql([
+            {first_name: "Willard"},
+            {first_name: "Giavani"}
+          ])
+        })
+  
+        it('should return "first_name" for for all objects after non_exist filter criteria from peopleData', () => {
+          expect(parser(reqFirstNameOfNonExistFilter, peopleData)).to.eql([
+            { first_name: "Jeanette" },
+            { first_name: "Giavani" },
+            { first_name: "Noell" },
+            { first_name: "Willard" },
+            { first_name: "Mooka" }
+          ]);
+        })
+  
+        it('should return [undefined] for nonsensical equals requests pt. 1', () => {
+          expect(parser(reqNonExistFromIdEq4, peopleData)).to.eql([undefined]);
+          expect(parser(reqIdEqTo4andIdEq3, peopleData)).to.eql([undefined]);
+        })
+      }) */
+    /* 
+       describe('Querying GREATER and LESS Requests', () => {
+          let reqIdGreaterThan2 = '{"and": ["id", {"greater": ["2"]}]}';
+          let reqIdLessThan4 = '{"and": ["id", {"less": ["4"]}]}';
+          let reqIdGreaterThan2LessThan4 = '{"and":["id", {"greater": ["2"], "less": ["4"]}]}';
+          let reqIdGreaterThan2Lessthan3 = '{"and":["id", {"greater": ["2"], "less": ["3"]}]}';
+          let reqIdGreaterThan5OrLessThan3= '{"or":["id", {"greater": ["5"], "less": ["3"]}]}';
+          let reqIdLessThan3GreaterThan1 = '{"or":["id", {"less": ["3"], "greater": ["1"]}]}';
+    
+          let reqAmountWonGreaterThan5 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"]}]}]}';
+          let reqAmountWonLessThan300 = '{"and": ["winners", {"and": ["amountWon", {"less": ["300.00"]}]}]}';
+          let reqAmountWonGreaterThan5LessThan300 = '{"and": ["winners", {"and": ["amountWon", {"greater": ["5.00"], "less": ["300.00"]}]}]}';
+    
+    
+          it('should return "id" greater than 2 from PeopleData', () => {
+            expect(parser(reqIdGreaterThan2, peopleData)).to.eql([
+              {
+                "id": 3,
+                "first_name": "Noell",
+                "last_name": "Bea",
+                "email": "nbea2@imageshack.us",
+                "gender": "Female",
+                "ip_address": "180.66.162.255"
+              }, {
+                "id": 4,
+                "first_name": "Willard",
+                "last_name": "Valek",
+                "email": "wvalek3@vk.com",
+                "gender": "Male",
+                "ip_address": "67.76.188.26"
+              }, {
+                "id": 5,
+                "first_name": "Mooka",
+                "last_name": "Zinga",
+                "email": "mZing@lgbtq.com",
+                "gender": "Trans",
+                "ip_address": "75.36.237.44"
+              }
+            ])
+          })
+    
+          it('should return "id" equal to 3 from peopleData', () => {
+            expect(parser(reqIdGreaterThan2LessThan4, peopleData)).to.eql([
+              {
+                "id": 3,
+                "first_name": "Noell",
+                "last_name": "Bea",
+                "email": "nbea2@imageshack.us",
+                "gender": "Female",
+                "ip_address": "180.66.162.255"
+              }
+            ])
+          })
+    
+    
       
-      it('should return "winner" fields which have "amountWon" fields greater than 5.00 and less than 300.00 from transactionData', ()=> {
-        expect(parser(reqAmountWonGreaterThan5LessThan300, transactionData)).to.eql([{
-          winners: [{
-            name: "Test2Ailbhe",
-            country: "MT",
-            amountWon: "90.95",
-            currency: "EUR"
-        }, {
-            name: "pwnmaster",
-            country: "CA",
-            amountWon: "80.25",
-            currency: "CAD"
-        }]
-        }])
-      })
-    }) 
- */
+          it('should return "id" less than 4 from PeopleData', () => {
+            expect(parser(reqIdLessThan4, peopleData)).to.eql([
+              {
+                "id": 1,
+                "first_name": "Jeanette",
+                "last_name": "Penddreth",
+                "email": "jpenddreth0@census.gov",
+                "gender": "Female",
+                "ip_address": "26.58.193.2"
+              }, {
+                "id": 2,
+                "first_name": "Giavani",
+                "last_name": "Frediani",
+                "email": "gfrediani1@senate.gov",
+                "gender": "Male",
+                "ip_address": "229.179.4.212"
+              }, {
+                "id": 3,
+                "first_name": "Noell",
+                "last_name": "Bea",
+                "email": "nbea2@imageshack.us",
+                "gender": "Female",
+                "ip_address": "180.66.162.255"
+              }
+            ])
+          })
+    
+         it('should return [undefined] for "id" greater than 2 and less than 3 from peopleData', ()=> {
+              expect(parser(reqIdGreaterThan2Lessthan3, peopleData)).to.eql([undefined])
+          })
+    
+          it('should return "id" less than 3 from peopleData', ()=> {
+            expect(parser(reqIdGreaterThan5OrLessThan3, peopleData)).to.eql([
+              {
+                "id": 1,
+                "first_name": "Jeanette",
+                "last_name": "Penddreth",
+                "email": "jpenddreth0@census.gov",
+                "gender": "Female",
+                "ip_address": "26.58.193.2"
+              }, {
+                "id": 2,
+                "first_name": "Giavani",
+                "last_name": "Frediani",
+                "email": "gfrediani1@senate.gov",
+                "gender": "Male",
+                "ip_address": "229.179.4.212"
+              }
+            ])
+          })
+    
+          it('should return "id" equal to 2', () => {
+            expect(parser(reqIdLessThan3GreaterThan1, peopleData)).to.eql([
+              {
+                "id": 2,
+                "first_name": "Giavani",
+                "last_name": "Frediani",
+                "email": "gfrediani1@senate.gov",
+                "gender": "Male",
+                "ip_address": "229.179.4.212"
+              }
+            ])
+          })
+    
+    
+          it('should return "winner" fields which have "amountWon" fields greater than 5.00 from transactionData', ()=> {
+              expect(parser(reqAmountWonGreaterThan5, transactionData)).to.eql([{
+                winners: [{
+                  name: null,
+                  country: "GB",
+                  amountWon: "396.00",
+                  currency: "EUR"
+              }, {
+                  name: "Test2Ailbhe",
+                  country: "MT",
+                  amountWon: "90.95",
+                  currency: "EUR"
+              }, {
+                  name: "pwnmaster",
+                  country: "CA",
+                  amountWon: "80.25",
+                  currency: "CAD"
+              }]
+              }])
+          })
+    
+          it('should return "winner" fields which have "amountWon" fields less than 300.00 from transactionData', ()=> {
+            expect(parser(reqAmountWonLessThan300, transactionData)).to.eql([{
+              winners: [{
+                name: "Test2Ailbhe",
+                country: "MT",
+                amountWon: "90.95",
+                currency: "EUR"
+            }, {
+                name: "omegazhenga",
+                country: "GB",
+                amountWon: "4.00",
+                currency: "GBP"
+            }, {
+                name: "pwnmaster",
+                country: "CA",
+                amountWon: "80.25",
+                currency: "CAD"
+            }]
+            }])
+          })
+    
+          
+          it('should return "winner" fields which have "amountWon" fields greater than 5.00 and less than 300.00 from transactionData', ()=> {
+            expect(parser(reqAmountWonGreaterThan5LessThan300, transactionData)).to.eql([{
+              winners: [{
+                name: "Test2Ailbhe",
+                country: "MT",
+                amountWon: "90.95",
+                currency: "EUR"
+            }, {
+                name: "pwnmaster",
+                country: "CA",
+                amountWon: "80.25",
+                currency: "CAD"
+            }]
+            }])
+          })
+        }) 
+     */
     /* describe('Querying DEEP requests', ()=> {
       let reqQuestion = '{"deep": [{"and": ["question"]}]}'
       let reqQuestionWithParents = '{"deep": [{"and": ["question"]}], "parents": true}';

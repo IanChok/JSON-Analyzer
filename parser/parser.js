@@ -17,26 +17,31 @@ module.exports = function parser(query, data) {
  * @param {Query, Data} req 
  */
 function processQuery(req) {
+    console.log('processQuery (req) => ', req)
+    let processNum = 0;
     if (lo.isArray(req.data)) {
         const wrapper = [];
         lo.forEach(req.data, (dataObj) => {
-            let temp = processQueryHelper(dataObj)
+            console.log('data # ', processNum);
+            let temp = processQueryHelper({...req, data: dataObj})
             if (!lo.isNil(temp)) {
                 wrapper.push(dataObj);
             }
-        })
-        console.log('wrapper: ', wrapper)
 
+            processNum += 1;
+        })
+        console.log('wrapper: ',  _.parsedResult(wrapper))
         return _.parsedResult(wrapper);
 
     } else {
         let parseResult = processQueryHelper(req)
-        console.log('parsedResult: ', parseResult)
+        console.log('parsedResult: ', _.parsedResult([parseResult]))
         return _.parsedResult([parseResult])
     }
 }
 
 function processQueryHelper(req) {
+    console.log('processQueryHelper => ', req);
     return (lo.has(req, 'and')? and(req) : or(req));
 }
 
@@ -50,6 +55,7 @@ function processQueryHelper(req) {
  * @returns undefined if one item is falsey
  */
 function and(req) {
+    console.log('and => ...')
     const result = {};
     let fail = false;
 
@@ -60,16 +66,19 @@ function and(req) {
 
         switch (type) {
             case 'field':
+                console.log('type: field')
                 tempVal = getFieldValue({item, data: req.data});
                 field = item;
                 break;
 
             case 'filter_field':
+                console.log('type: filter_field')
                 tempVal = filterData(item, req.data);
                 field = item.field;
                 break;
 
             case 'recurse':
+                console.log('type: recurse')
                 tempVal = recurse({item, data: req.data});
                 field = item.field;
         }
@@ -80,13 +89,18 @@ function and(req) {
         }
 
         result[field] = tempVal;
+        console.log('result obj currently: ', result);
     })
 
     return (fail ? undefined : result)
 }
 
 function getFieldValue(req) {
+    console.log('getFieldValue => ...')
+    console.log('item: ', req.item);
     let val = req.data[req.item];
+
+    console.log('returning ',  _.verifyValue(val))
     return _.verifyValue(val);
 }
 
