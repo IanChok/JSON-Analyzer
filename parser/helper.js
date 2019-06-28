@@ -42,7 +42,7 @@ module.exports = {
         } else {
             for(const key of Object.keys(item)){
                 if(key === 'equal' || key === 'greater' || key === 'less'){
-                    return 'filter field'
+                    return 'filter_field'
                 }
             }
 
