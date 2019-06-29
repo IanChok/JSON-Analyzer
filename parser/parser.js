@@ -83,16 +83,16 @@ function and(req) {
                 field = item.field;
         }
 
-        if (tempVal === undefined) {
+        if (_.isUndefined(tempVal)) {
             fail = true;
             return false;
         }
 
         result[field] = tempVal;
-        console.log('result obj currently: ', result);
+        console.log('Temp val: ', tempVal,'. result obj currently: ', result);
     })
 
-    console.log('and => returning: ', result)
+    console.log('and => returning: ', result, '. Fail status: ', fail, '. Therefore returning: ', (fail ? undefined : result))
     return (fail ? undefined : result)
 }
 
@@ -128,7 +128,7 @@ function filterData(req) {
         throw new Error(`unrecognized filter: ${req.filter}`)
     }
 
-    return (tempData === undefined? undefined : tempData);
+    return (_.isUndefined(tempData)? undefined : tempData);
 }
 
 

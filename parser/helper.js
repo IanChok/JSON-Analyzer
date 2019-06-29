@@ -1,4 +1,5 @@
-const _ = require('lodash');
+const lo = require('lodash');
+
 
 module.exports = {
     checkNullInputs(req, data) {
@@ -20,7 +21,7 @@ module.exports = {
     },
 
     parsedResult(data) {
-        if(!_.isNil(data[0])){
+        if(!lo.isNil(data[0])){
             console.log('parsedResult => returning ', data)
             return data;
         }
@@ -29,7 +30,7 @@ module.exports = {
     },
 
     verifyValue(val){
-        if(!_.isNil(val)){
+        if(!lo.isNil(val)){
             console.log('returning val: ', val)
             return val;
         }
@@ -49,6 +50,14 @@ module.exports = {
 
             return 'recurse'
         }
+    },
+
+    isUndefined(item) {
+        if(lo.isArray(item)){
+            return item[0] === undefined;
+        }
+
+        return item === undefined;
     }
 
 }
